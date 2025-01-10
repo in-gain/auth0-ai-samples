@@ -1,3 +1,4 @@
+/* From  https://github.com/auth0-lab/auth0-ai-js/blob/main/packages/ai-langchain/src/retrievers/fga-retriever.ts */
 import { Document, DocumentInterface } from "@langchain/core/documents";
 import { BaseRetriever } from "@langchain/core/retrievers";
 import {

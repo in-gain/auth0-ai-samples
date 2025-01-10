@@ -32,12 +32,7 @@ async function main() {
       { type: "user" },
       {
         type: "doc",
-        relations: {
-          owner: { this: {} },
-          viewer: { this: {} },
-          can_view: {},
-          can_edit: {},
-        },
+        relations: { owner: { this: {} }, viewer: { this: {} } },
         metadata: {
           relations: {
             owner: { directly_related_user_types: [{ type: "user" }] },
