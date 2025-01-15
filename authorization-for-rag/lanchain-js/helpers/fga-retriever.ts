@@ -2,7 +2,7 @@
 import { Document, DocumentInterface } from "@langchain/core/documents";
 import { BaseRetriever } from "@langchain/core/retrievers";
 import {
-  ClientCheckRequest,
+  ClientBatchCheckItem,
   CredentialsMethod,
   OpenFgaClient,
 } from "@openfga/sdk";
@@ -10,18 +10,24 @@ import {
 import type { BaseRetrieverInput } from "@langchain/core/retrievers";
 import type { CallbackManagerForRetrieverRun } from "@langchain/core/callbacks/manager";
 
-type FGARetrieverArgsWithoutCheckFromDocument<T extends ClientCheckRequest> = {
-  retriever: BaseRetriever;
-  buildQuery: (doc: DocumentInterface<Record<string, any>>, query: string) => T;
-  fields?: BaseRetrieverInput;
-};
+type FGARetrieverArgsWithoutCheckFromDocument<T extends ClientBatchCheckItem> =
+  {
+    retriever: BaseRetriever;
+    buildQuery: (
+      doc: DocumentInterface<Record<string, any>>,
+      query: string
+    ) => T;
+    fields?: BaseRetrieverInput;
+  };
 
-type FGARetrieverArgs<T extends ClientCheckRequest> =
+type FGARetrieverArgs<T extends ClientBatchCheckItem> =
   FGARetrieverArgsWithoutCheckFromDocument<T> & {
     accessByDocument: (checks: T[]) => Promise<Map<string, boolean>>;
   };
 
-export class FGARetriever<T extends ClientCheckRequest> extends BaseRetriever {
+export class FGARetriever<
+  T extends ClientBatchCheckItem
+> extends BaseRetriever {
   lc_namespace = ["langchain", "retrievers"];
   private retriever: BaseRetriever;
   private buildQuery: (
@@ -41,14 +47,14 @@ export class FGARetriever<T extends ClientCheckRequest> extends BaseRetriever {
     this.retriever = retriever;
 
     this.accessByDocument = accessByDocument as (
-      checks: ClientCheckRequest[]
+      checks: ClientBatchCheckItem[]
     ) => Promise<Map<string, boolean>>;
   }
 
   static create(
-    args: FGARetrieverArgsWithoutCheckFromDocument<ClientCheckRequest>,
+    args: FGARetrieverArgsWithoutCheckFromDocument<ClientBatchCheckItem>,
     fgaClient?: OpenFgaClient
-  ): FGARetriever<ClientCheckRequest> {
+  ): FGARetriever<ClientBatchCheckItem> {
     const client =
       fgaClient ||
       new OpenFgaClient({
@@ -66,11 +72,11 @@ export class FGARetriever<T extends ClientCheckRequest> extends BaseRetriever {
       });
 
     const accessByDocument = async function accessByDocument(
-      checks: ClientCheckRequest[]
+      checks: ClientBatchCheckItem[]
     ): Promise<Map<string, boolean>> {
-      const results = await client.batchCheck(checks);
-      return results.responses.reduce((c: Map<string, boolean>, v) => {
-        c.set(v._request.object, v.allowed || false);
+      const response = await client.batchCheck({ checks });
+      return response.result.reduce((c: Map<string, boolean>, v) => {
+        c.set(v.request.object, v.allowed || false);
         return c;
       }, new Map<string, boolean>());
     };
