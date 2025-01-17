@@ -40,9 +40,14 @@ This example demonstrates how to combine [LangChain](https://python.langchain.co
 
 ### How to run it
 
-1. Install dependencies. Depending on your environment you may want to create a virtual environment first.
+1. Install dependencies. Depending on your environment you may want to create a virtual environment using your prefer method.
 
    ```sh
+   # Create a virtual environment
+   $ python -m venv venv
+   # Activate the virtual environment
+   $ source venv/bin/activate
+   # Install dependencies
    $ pip install -r requirements.txt
    ```
 
