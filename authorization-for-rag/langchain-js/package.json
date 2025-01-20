@@ -14,10 +14,12 @@
     "fga:init": "npx tsx ./scripts/fga-init.ts"
   },
   "dependencies": {
+    "@langchain/langgraph": "^0.2.41",
     "@langchain/openai": "^0.3.17",
     "@openfga/sdk": "^0.8.0",
     "dotenv": "^16.4.7",
-    "langchain": "^0.3.11"
+    "langchain": "^0.3.11",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/node": "^22.10.6"

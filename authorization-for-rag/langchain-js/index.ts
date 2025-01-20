@@ -1,10 +1,16 @@
 /**
- * LangChain Example: Retrievers with Okta FGA (Fine-Grained Authorization)
+ * LangGraph (by LangChain) Example: Retrievers with Okta FGA (Fine-Grained Authorization)
  */
 import "dotenv/config";
 
+import { z } from "zod";
+
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
+import { tool } from "@langchain/core/tools";
+import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
+import { MemoryVectorStore } from "langchain/vectorstores/memory";
+
 import { FGARetriever } from "./helpers/fga-retriever";
-import { MemoryStore, RetrievalChain } from "./helpers/langchain";
 import { readDocuments } from "./helpers/read-documents";
 
 /**
@@ -22,7 +28,7 @@ import { readDocuments } from "./helpers/read-documents";
  */
 async function main() {
   console.info(
-    "\n..:: Langchain Example: Retrievers with Okta FGA (Fine-Grained Authorization)\n\n"
+    "\n..:: LangGraph (by LangChain) Example: Retrievers with Okta FGA (Fine-Grained Authorization)\n\n"
   );
 
   // UserID
@@ -30,29 +36,56 @@ async function main() {
   // 1. Read and load documents from the assets folder
   const documents = await readDocuments();
   // 2. Create an in-memory vector store from the documents for OpenAI models.
-  const vectorStore = await MemoryStore.fromDocuments(documents);
-  // 3. Create a retrieval chain with root prompt and OpenAI model configuration
-  const retrievalChain = await RetrievalChain.create({
-    // 4. Chain the retriever with the FGARetriever to check the permissions.
-    retriever: FGARetriever.create({
-      retriever: vectorStore.asRetriever(),
-      // FGA tuple to query for the user's permissions
-      buildQuery: (doc) => ({
-        user: `user:${user}`,
-        object: `doc:${doc.metadata.id}`,
-        relation: "viewer",
-      }),
+  const vectorStore = await MemoryVectorStore.fromDocuments(
+    documents,
+    new OpenAIEmbeddings({ model: "text-embedding-3-small" })
+  );
+  // 3. Create a retriever that uses FGA to gate fetching documents on permissions.
+  const retriever = FGARetriever.create({
+    retriever: vectorStore.asRetriever(),
+    // FGA tuple to query for the user's permissions
+    buildQuery: (doc) => ({
+      user: `user:${user}`,
+      object: `doc:${doc.metadata.id}`,
+      relation: "viewer",
     }),
   });
-  // 5. Query the retrieval chain with a prompt
-  const { answer } = await retrievalChain.query({
-    query: "Show me forecast for ZEKO?",
+  // 4. Convert the retriever into a tool for an agent.
+  // The agent will call the tool, rephrasing the original question and
+  // populating the "query" argument, until it can answer the user's question.
+  const retrieverTool = tool(
+    async ({ query }) => {
+      const documents = await retriever.invoke(query);
+      return documents.map((doc) => doc.pageContent).join("\n\n");
+    },
+    {
+      name: "financial-researcher",
+      description: "Returns the latest information on financial markets.",
+      schema: z.object({
+        query: z.string(),
+      }),
+    }
+  );
+  // 5. Create a retrieval agent that has access to the retrieval tool.
+  const retrievalAgent = createReactAgent({
+    llm: new ChatOpenAI({ model: "gpt-4o-mini" }),
+    tools: [retrieverTool],
+    stateModifier: "Call available tools to fetch the latest information.",
+  });
+  // 6. Query the retrieval agent with a prompt
+  const { messages } = await retrievalAgent.invoke({
+    messages: [
+      {
+        role: "user",
+        content: "Show me forecast for ZEKO?",
+      },
+    ],
   });
 
   /**
    * Output: `The provided context does not include specific financial forecasts...`
    */
-  console.info(answer);
+  console.info(messages.at(-1)?.content);
 
   /**
    * If we add the following tuple to the Okta FGA:
