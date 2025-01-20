@@ -70,7 +70,11 @@ async function main() {
   const retrievalAgent = createReactAgent({
     llm: new ChatOpenAI({ model: "gpt-4o-mini" }),
     tools: [retrieverTool],
-    stateModifier: "Call available tools to fetch the latest information.",
+    stateModifier: [
+      "Answer the user's question based only on context retrieved from provided tools.",
+      "Only use the information provided by the tools.",
+      "If you need more information, ask for it.",
+    ].join(" "),
   });
   // 6. Query the retrieval agent with a prompt
   const { messages } = await retrievalAgent.invoke({
