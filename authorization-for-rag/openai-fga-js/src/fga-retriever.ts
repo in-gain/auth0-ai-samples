@@ -1,5 +1,5 @@
 import {
-  ClientCheckRequest,
+  ClientBatchCheckItem,
   ConsistencyPreference,
   CredentialsMethod,
   OpenFgaClient,
@@ -7,13 +7,9 @@ import {
 
 import { Document, DocumentWithScore } from "./helpers";
 
-export type FGARetrieverCheckerFn = (document: Document) => {
-  user: string;
-  object: string;
-  relation: string;
-};
+export type FGARetrieverCheckerFn = (doc: Document) => ClientBatchCheckItem;
 
-export interface FGARetrieverProps {
+export interface FGARetrieverArgs {
   buildQuery: FGARetrieverCheckerFn;
   documents: DocumentWithScore[];
 }
@@ -24,7 +20,7 @@ export class FGARetriever {
   private documents: DocumentWithScore[];
 
   private constructor(
-    { buildQuery, documents }: FGARetrieverProps,
+    { buildQuery, documents }: FGARetrieverArgs,
     fgaClient?: OpenFgaClient
   ) {
     this.documents = documents;
@@ -48,22 +44,25 @@ export class FGARetriever {
   }
 
   static create(
-    { buildQuery, documents }: FGARetrieverProps,
+    { buildQuery, documents }: FGARetrieverArgs,
     fgaClient?: OpenFgaClient
   ) {
     return new FGARetriever({ buildQuery, documents }, fgaClient);
   }
 
   private async checkPermissions(
-    requests: ClientCheckRequest[]
+    checks: ClientBatchCheckItem[]
   ): Promise<Map<string, boolean>> {
-    const batchCheckResponse = await this.fgaClient.batchCheck(requests, {
-      consistency: ConsistencyPreference.HigherConsistency,
-    });
+    const response = await this.fgaClient.batchCheck(
+      { checks },
+      {
+        consistency: ConsistencyPreference.HigherConsistency,
+      }
+    );
 
-    return batchCheckResponse.responses.reduce(
-      (permissionMap: Map<string, boolean>, response) => {
-        permissionMap.set(response._request.object, response.allowed || false);
+    return response.result.reduce(
+      (permissionMap: Map<string, boolean>, result) => {
+        permissionMap.set(result.request.object, result.allowed || false);
         return permissionMap;
       },
       new Map<string, boolean>()
@@ -74,17 +73,14 @@ export class FGARetriever {
     const retrievedNodes = this.documents;
 
     const { checks, documentToObjectMap } = retrievedNodes.reduce(
-      (accumulator, documentWithScore: DocumentWithScore) => {
-        const permissionCheck = this.buildQuery(documentWithScore.document);
-        accumulator.checks.push(permissionCheck);
-        accumulator.documentToObjectMap.set(
-          documentWithScore.document,
-          permissionCheck.object
-        );
-        return accumulator;
+      (acc, documentWithScore: DocumentWithScore) => {
+        const check = this.buildQuery(documentWithScore.document);
+        acc.checks.push(check);
+        acc.documentToObjectMap.set(documentWithScore.document, check.object);
+        return acc;
       },
       {
-        checks: [] as ClientCheckRequest[],
+        checks: [] as ClientBatchCheckItem[],
         documentToObjectMap: new Map<Document, string>(),
       }
     );

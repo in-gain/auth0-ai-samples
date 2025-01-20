@@ -22,11 +22,11 @@ export function readDocuments() {
 
   const document1 = {
     id: "public-doc",
-    text: readDoc("./src/assets/docs/public-doc.md"),
+    text: readDoc("./assets/docs/public-doc.md"),
   };
   const document2 = {
     id: "private-doc",
-    text: readDoc("./src/assets/docs/private-doc.md"),
+    text: readDoc("./assets/docs/private-doc.md"),
   };
 
   return [document1, document2];
