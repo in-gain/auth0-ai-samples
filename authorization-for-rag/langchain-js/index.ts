@@ -1,5 +1,5 @@
 /**
- * LangGraph (by LangChain) Example: Retrievers with Okta FGA (Fine-Grained Authorization)
+ * LangChain + LangGraph Agents Example: Agentic Retrieval with Okta FGA (Fine-Grained Authorization)
  */
 import "dotenv/config";
 
@@ -28,7 +28,7 @@ import { readDocuments } from "./helpers/read-documents";
  */
 async function main() {
   console.info(
-    "\n..:: LangGraph (by LangChain) Example: Retrievers with Okta FGA (Fine-Grained Authorization)\n\n"
+    "\n..:: LangChain + LangGraph Agents Example: Agentic Retrieval with Okta FGA (Fine-Grained Authorization)\n\n"
   );
 
   // UserID
