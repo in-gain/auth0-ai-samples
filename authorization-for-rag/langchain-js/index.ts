@@ -71,7 +71,8 @@ async function main() {
     llm: new ChatOpenAI({ model: "gpt-4o-mini" }),
     tools: [retrieverTool],
     stateModifier: [
-      "Answer the user's question based only on context retrieved from provided tools.",
+      "If the user asks a question related to financial data,",
+      "answer only based on context retrieved from provided tools.",
       "Only use the information provided by the tools.",
       "If you need more information, ask for it.",
     ].join(" "),
