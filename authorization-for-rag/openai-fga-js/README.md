@@ -65,7 +65,7 @@
 
 3. Running the example
    ```sh
-   npm run dev
+   npm start
    ```
 
 
