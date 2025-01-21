@@ -5,7 +5,7 @@ import { DocumentInterface } from "@langchain/core/documents";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { BaseRetrieverInterface } from "@langchain/core/retrievers";
 import { Runnable, RunnableInterface } from "@langchain/core/runnables";
-import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
+import { ChatOpenAI } from "@langchain/openai";
 import { LanguageModelLike } from "@langchain/core/language_models/base";
 
 /**

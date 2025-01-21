@@ -1,5 +1,5 @@
 {
-  "name": "auth0-langgraph-agentic-rag-js",
+  "name": "auth0-langgraph-state-rag-js",
   "version": "0.0.0",
   "description": "Demonstrates the usage of the Okta FGA with LangChain to query documents with permission checks.",
   "x-type": "module",
