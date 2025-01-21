@@ -1,6 +1,6 @@
-# LangChain Retrievers + LangGraph Agents + Okta FGA
+# LangChain Retrievers + Okta FGA
 
-This example demonstrates how to combine [LangChain](https://js.langchain.com/) RAG methods and [LangGraph](https://langchain-ai.github.io/langgraphjs/) agents with robust authorization controls for RAG workflows. Using [Okta FGA](https://docs.fga.dev/), it ensures that users can only access documents they are authorized to view. The example retrieves relevant documents, enforces access permissions, and generates responses based only on authorized data, maintaining strict data security and preventing unauthorized access.
+This example demonstrates how to combine [LangChain](https://js.langchain.com/docs/tutorials/) with robust authorization controls for RAG workflows. Using [Okta FGA](https://docs.fga.dev/), it ensures that users can only access documents they are authorized to view. The example retrieves relevant documents, enforces access permissions, and generates responses based only on authorized data, maintaining strict data security and preventing unauthorized access.
 
 ## Getting Started
 
@@ -11,7 +11,7 @@ This example demonstrates how to combine [LangChain](https://js.langchain.com/) 
 
 ### Setup
 
-1. Create a `.env` file by renaming the included `.env.example` file. It should look like this:
+1. Create a `.env` file using the format below:
 
    ```sh
     # OpenAI
@@ -24,12 +24,6 @@ This example demonstrates how to combine [LangChain](https://js.langchain.com/) 
     # Optional
     FGA_API_URL=api.xxx.fga.dev
     FGA_API_AUDIENCE=https://api.xxx.fga.dev/
-
-    # LangSmith
-    # Optional: Trace model calls using for observability
-    # https://docs.smith.langchain.com/
-    LANGSMITH_API_KEY=
-    LANGSMITH_TRACING_V2=
    ```
 
 #### Obtain OpenAI API Key
