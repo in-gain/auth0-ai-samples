@@ -44,11 +44,9 @@ async function main() {
     documents,
     new OpenAIEmbeddings({ model: "text-embedding-3-small" })
   );
+  const llm = new ChatOpenAI({ temperature: 0, model: "gpt-4o-mini" });
 
-  // 3. Create a state graph workflow
-  const workflow = new StateGraph(StateAnnotation);
-
-  // 4. Create a retriever that uses FGA to gate fetching documents on permissions.
+  // 3. Create a retriever that uses FGA to gate fetching documents on permissions.
   const retriever = FGARetriever.create({
     retriever: vectorStore.asRetriever(),
     // FGA tuple to query for the user's permissions
@@ -58,36 +56,37 @@ async function main() {
       relation: "viewer",
     }),
   });
-  // add retriever as node to the graph
-  workflow.addNode("retrieve", async (state) => ({
-    documents: await retriever.invoke(state.question),
-  }));
 
-  // 5. Create a language model tool
-  const llm = new ChatOpenAI({ temperature: 0, model: "gpt-4o-mini" });
-  workflow.addNode("prompt_llm", async (state) => {
-    const context = state.documents.map((doc) => doc.pageContent).join("\n\n");
-    const { content } = await llm.invoke([
-      {
-        role: "system",
-        content: `Answer the user's question based on the following context: ${context}. 
+  // 4. Create a state graph workflow
+  const workflow = new StateGraph(StateAnnotation)
+    // 5. add retriever as node to the graph
+    .addNode("retrieve", async (state) => ({
+      documents: await retriever.invoke(state.question),
+    }))
+    // 6. Create a language model tool node
+    .addNode("prompt_llm", async (state) => {
+      const context = state.documents
+        .map((doc) => doc.pageContent)
+        .join("\n\n");
+      const { content } = await llm.invoke([
+        {
+          role: "system",
+          content: `Answer the user's question based on the following context: ${context}. 
           Only use the information provided in the context. If you need more information, ask for it.`,
-      },
-      {
-        role: "user",
-        content: `Here is the question: ${state.question}`,
-      },
-    ]);
-    return {
-      response: content,
-    };
-  });
-  //@ts-ignore -  not sure why this is a type error
-  workflow.addEdge(START, "retrieve");
-  //@ts-ignore -  not sure why this is a type error
-  workflow.addEdge("retrieve", "prompt_llm");
-
+        },
+        {
+          role: "user",
+          content: `Here is the question: ${state.question}`,
+        },
+      ]);
+      return {
+        response: content,
+      };
+    })
+    .addEdge(START, "retrieve")
+    .addEdge("retrieve", "prompt_llm");
   const graph = workflow.compile();
+
   // 6. Query the graph with a prompt
   const state = await graph.invoke({
     question: "Show me forecast for ZEKO?",
