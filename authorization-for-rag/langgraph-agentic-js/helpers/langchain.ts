@@ -12,7 +12,7 @@ export class RetrievalAgent {
   }
 
   // Create a retrieval agent with a retriever tool and a language model
-  static create({ retriever }: { retriever: BaseRetrieverInterface }) {
+  static create(retriever: BaseRetrieverInterface) {
     // Convert the retriever into a tool for an agent.
     const retrieverTool = tool(
       async ({ query }) => {

@@ -50,7 +50,7 @@ async function main() {
   // 4. Convert the retriever into a tool for an agent.
   // The agent will call the tool, rephrasing the original question and
   // populating the "query" argument, until it can answer the user's question.
-  const retrievalAgent = RetrievalAgent.create({ retriever });
+  const retrievalAgent = RetrievalAgent.create(retriever);
   // 5. Query the retrieval agent with a prompt
   const answer = await retrievalAgent.query("Show me forecast for ZEKO?");
 
