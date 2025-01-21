@@ -45,9 +45,10 @@ async function main() {
     new OpenAIEmbeddings({ model: "text-embedding-3-small" })
   );
 
+  // 3. Create a state graph workflow
   const workflow = new StateGraph(StateAnnotation);
 
-  // 3. Create a retriever that uses FGA to gate fetching documents on permissions.
+  // 4. Create a retriever that uses FGA to gate fetching documents on permissions.
   const retriever = FGARetriever.create({
     retriever: vectorStore.asRetriever(),
     // FGA tuple to query for the user's permissions
@@ -57,11 +58,12 @@ async function main() {
       relation: "viewer",
     }),
   });
-
+  // add retriever as node to the graph
   workflow.addNode("retrieve", async (state) => ({
     documents: await retriever.invoke(state.question),
   }));
 
+  // 5. Create a language model tool
   const llm = new ChatOpenAI({ temperature: 0, model: "gpt-4o-mini" });
   workflow.addNode("prompt_llm", async (state) => {
     const context = state.documents.map((doc) => doc.pageContent).join("\n\n");
@@ -86,10 +88,7 @@ async function main() {
   workflow.addEdge("retrieve", "prompt_llm");
 
   const graph = workflow.compile();
-  // 4. Convert the retriever into a tool for an agent.
-  // The agent will call the tool, rephrasing the original question and
-  // populating the "query" argument, until it can answer the user's question.
-  // 5. Query the retrieval agent with a prompt
+  // 6. Query the graph with a prompt
   const state = await graph.invoke({
     question: "Show me forecast for ZEKO?",
   });
