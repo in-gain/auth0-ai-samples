@@ -19,9 +19,8 @@
    FGA_STORE_ID=
    FGA_CLIENT_ID=
    FGA_CLIENT_SECRET=
-   # Optional
+   # Required only for non-US regions
    FGA_API_URL=https://api.xxx.fga.dev
-   FGA_API_TOKEN_ISSUER=auth.fga.dev
    FGA_API_AUDIENCE=https://api.xxx.fga.dev/
    ```
 
