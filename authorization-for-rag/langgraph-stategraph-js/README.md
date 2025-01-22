@@ -1,6 +1,6 @@
-# LangChain Retrievers + LangGraph Agents + Okta FGA
+# LangChain Retrievers + LangGraph StateGraph + Okta FGA
 
-This example demonstrates how to combine [LangChain](https://js.langchain.com/) RAG methods and [LangGraph](https://langchain-ai.github.io/langgraphjs/) agents with robust authorization controls for RAG workflows. Using [Okta FGA](https://docs.fga.dev/), it ensures that users can only access documents they are authorized to view. The example retrieves relevant documents, enforces access permissions, and generates responses based only on authorized data, maintaining strict data security and preventing unauthorized access.
+This example demonstrates how to combine [LangChain](https://js.langchain.com/) RAG methods and [LangGraph](https://langchain-ai.github.io/langgraphjs/) with robust authorization controls for RAG workflows. Using [Okta FGA](https://docs.fga.dev/), it ensures that users can only access documents they are authorized to view. The example retrieves relevant documents, enforces access permissions, and generates responses based only on authorized data, maintaining strict data security and preventing unauthorized access.
 
 ## Getting Started
 
