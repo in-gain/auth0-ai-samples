@@ -16,6 +16,7 @@
   "dependencies": {
     "@langchain/openai": "^0.3.17",
     "@openfga/sdk": "^0.8.0",
+    "auth0-ai-js": "github:auth0-lab/auth0-ai-js#alpha-1",
     "dotenv": "^16.4.7",
     "langchain": "^0.3.12"
   },

@@ -3,11 +3,12 @@
  */
 import "dotenv/config";
 
-import { FGARetriever } from "./helpers/fga-retriever";
-import { RetrievalChain } from "./helpers/langchain";
-import { readDocuments } from "./helpers/read-documents";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { OpenAIEmbeddings } from "@langchain/openai";
+// Once published to NPM, this will become `import { FGARetriever } from "@auth0/ai-langchain";`
+import { FGARetriever } from "auth0-ai-js/packages/ai-langchain/src";
+import { RetrievalChain } from "./helpers/langchain";
+import { readDocuments } from "./helpers/read-documents";
 
 /**
  * Demonstrates the usage of the Okta FGA (Fine-Grained Authorization)
