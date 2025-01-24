@@ -5,8 +5,9 @@ import "dotenv/config";
 
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
+// Once published to NPM, this will become `import { FGARetriever } from "@auth0/ai-langchain";`
+import { FGARetriever } from "auth0-ai-js/packages/ai-langchain/src";
 
-import { FGARetriever } from "./helpers/fga-retriever";
 import { readDocuments } from "./helpers/read-documents";
 import { RetrievalAgent } from "./helpers/langchain";
 
@@ -48,10 +49,11 @@ async function main() {
     }),
   });
   // 4. Convert the retriever into a tool for an agent.
-  // The agent will call the tool, rephrasing the original question and
+  const fgaTool = retriever.asJoinedStringTool();
+  // 5. The agent will call the tool, rephrasing the original question and
   // populating the "query" argument, until it can answer the user's question.
-  const retrievalAgent = RetrievalAgent.create(retriever);
-  // 5. Query the retrieval agent with a prompt
+  const retrievalAgent = RetrievalAgent.create([fgaTool]);
+  // 6. Query the retrieval agent with a prompt
   const answer = await retrievalAgent.query("Show me forecast for ZEKO?");
 
   /**
