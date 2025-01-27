@@ -5,7 +5,12 @@
  */
 import "dotenv/config";
 
-import { OpenAIAgent, QueryEngineTool, VectorStoreIndex } from "llamaindex";
+import {
+  OpenAIAgent,
+  QueryEngineTool,
+  VectorStoreIndex,
+  SimpleDirectoryReader,
+} from "llamaindex";
 import { FGARetriever } from "./helpers/fga-retriever";
 
 import { readDocuments } from "./helpers/read-documents";
@@ -31,16 +36,17 @@ async function main() {
   // UserID
   const user = "user1";
   // 1. Read and load documents from the assets folder
-  const documents = await readDocuments();
+  const documents = await new SimpleDirectoryReader().loadData("./assets/docs");
   // 2. Create an in-memory vector store from the documents using the default OpenAI embeddings
   const vectorStoreIndex = await VectorStoreIndex.fromDocuments(documents);
   // 3. Create a retriever that uses FGA to gate fetching documents on permissions.
   const retriever = FGARetriever.create({
-    retriever: vectorStoreIndex.asRetriever(),
+    // Set the similarityTopK to retrieve more documents as SimpleDirectoryReader creates chunks
+    retriever: vectorStoreIndex.asRetriever({ similarityTopK: 30 }),
     // FGA tuple to query for the user's permissions
     buildQuery: (document) => ({
       user: `user:${user}`,
-      object: `doc:${document.metadata.id}`,
+      object: `doc:${document.metadata.file_name.split(".")[0]}`,
       relation: "viewer",
     }),
   });
