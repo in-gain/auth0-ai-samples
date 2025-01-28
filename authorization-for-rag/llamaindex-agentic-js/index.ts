@@ -13,8 +13,6 @@ import {
 } from "llamaindex";
 import { FGARetriever } from "./helpers/fga-retriever";
 
-import { readDocuments } from "./helpers/read-documents";
-
 /**
  * Demonstrates the usage of the Okta FGA (Fine-Grained Authorization)
  * with a vector store index to query documents with permission checks.
@@ -66,9 +64,7 @@ async function main() {
   const agent = new OpenAIAgent({ tools });
 
   // 6. Query the agent
-  let response = await agent.chat({
-    message: "Show me forecast for ZEKO?",
-  });
+  let response = await agent.chat({ message: "Show me forecast for ZEKO?" });
 
   /**
    * Output: `The provided document does not contain any specific forecast information...`
