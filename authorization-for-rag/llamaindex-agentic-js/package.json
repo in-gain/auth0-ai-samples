@@ -15,7 +15,8 @@
   },
   "dependencies": {
     "@openfga/sdk": "^0.8.0",
+    "auth0-ai-js": "github:auth0-lab/auth0-ai-js#alpha-2",
     "dotenv": "^16.4.7",
-    "llamaindex": "^0.8.31"
+    "llamaindex": "^0.8.33"
   }
 }

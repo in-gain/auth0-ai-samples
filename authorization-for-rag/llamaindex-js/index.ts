@@ -6,7 +6,8 @@
 import "dotenv/config";
 
 import { VectorStoreIndex } from "llamaindex";
-import { FGARetriever } from "./helpers/fga-retriever";
+// Once published to NPM, this will become `import { FGARetriever } from "@auth0/ai-llamaindex";`
+import { FGARetriever } from "auth0-ai-js/packages/ai-llamaindex/src";
 
 import { readDocuments } from "./helpers/read-documents";
 

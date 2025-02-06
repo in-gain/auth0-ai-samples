@@ -11,7 +11,8 @@ import {
   VectorStoreIndex,
   SimpleDirectoryReader,
 } from "llamaindex";
-import { FGARetriever } from "./helpers/fga-retriever";
+// Once published to NPM, this will become `import { FGARetriever } from "@auth0/ai-llamaindex";`
+import { FGARetriever } from "auth0-ai-js/packages/ai-llamaindex/src";
 
 /**
  * Demonstrates the usage of the Okta FGA (Fine-Grained Authorization)
