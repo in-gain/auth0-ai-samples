@@ -36,17 +36,20 @@ import static dev.langchain4j.model.openai.OpenAiChatModelName.GPT_4_O_MINI;
 public class RagApplication {
     static Logger log = LoggerFactory.getLogger("RAG");
 
+    static {
+        Dotenv.configure().systemProperties().load();
+    }
+
     public static void main(String[] args) throws Exception {
-        final Dotenv dotenv = Dotenv.configure().systemProperties().load();
         final ChatLanguageModel CHAT_MODEL_OPENAI = OpenAiChatModel.builder()
                 .apiKey(System.getProperty("OPENAI_API_KEY"))
                 .modelName(GPT_4_O_MINI)
                 .build();
 
-//        ChatLanguageModel CHAT_MODEL_OLLAMA = OllamaChatModel.builder()
-//                .baseUrl("http://localhost:11434")
-//                .modelName("deepseek-r1:1.5b")
-//                .build();
+        // ChatLanguageModel CHAT_MODEL_OLLAMA = OllamaChatModel.builder()
+        // .baseUrl("http://localhost:11434")
+        // .modelName("deepseek-r1:1.5b")
+        // .build();
 
         var user = "user1";
         // 1. Read and load documents from the assets folder

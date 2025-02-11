@@ -20,7 +20,7 @@ dependencies {
 }
 
 application {
-    mainClass = 'com.example.rag.RagApplication'
+    mainClass = 'rag.RagApplication'
 }
 
 java {
