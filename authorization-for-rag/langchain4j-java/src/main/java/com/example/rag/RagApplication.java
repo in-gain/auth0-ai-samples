@@ -4,6 +4,7 @@ import dev.langchain4j.data.document.loader.FileSystemDocumentLoader;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.ollama.OllamaChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
@@ -38,10 +39,15 @@ public class RagApplication {
 
     public static void main(String[] args) throws Exception {
         final Dotenv dotenv = Dotenv.configure().systemProperties().load();
-        final ChatLanguageModel CHAT_MODEL = OpenAiChatModel.builder()
+        final ChatLanguageModel CHAT_MODEL_OPENAI = OpenAiChatModel.builder()
                 .apiKey(System.getProperty("OPENAI_API_KEY"))
                 .modelName(GPT_4_O_MINI)
                 .build();
+
+//        ChatLanguageModel CHAT_MODEL_OLLAMA = OllamaChatModel.builder()
+//                .baseUrl("http://localhost:11434")
+//                .modelName("deepseek-r1:1.5b")
+//                .build();
 
         var user = "user1";
         // 1. Read and load documents from the assets folder
@@ -64,7 +70,7 @@ public class RagApplication {
 
         // 5. Create an assistant with the FGA retriever
         var assistant = AiServices.builder(Assistant.class)
-                .chatLanguageModel(CHAT_MODEL)
+                .chatLanguageModel(CHAT_MODEL_OPENAI)
                 .chatMemory(MessageWindowChatMemory.withMaxMessages(10))
                 .contentRetriever(fgaRetriever)
                 .build();
