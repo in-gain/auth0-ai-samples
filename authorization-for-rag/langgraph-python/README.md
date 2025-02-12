@@ -40,27 +40,22 @@ This example demonstrates how to combine [LangChain](https://python.langchain.co
 
 ### How to run it
 
-1. Install dependencies. Depending on your environment you may want to create a virtual environment using your prefer method.
+1. Install dependencies using [Poetry](https://python-poetry.org/docs/).
 
    ```sh
-   # Create a virtual environment
-   $ python -m venv venv
-   # Activate the virtual environment
-   $ source venv/bin/activate
-   # Install dependencies
-   $ pip install -r requirements.txt
+   $ poetry install
    ```
 
 2. Initialize the FGA model and tuples
 
    ```sh
-   $ python ./scripts/fga_init.py
+   $ poetry run python ./scripts/fga_init.py
    ```
 
 3. Running the example
 
    ```sh
-   python main.py
+   poetry run python main.py
    ```
 
 ---

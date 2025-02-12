@@ -7,8 +7,8 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph
 from openfga_sdk.client.models import ClientBatchCheckItem
+from langchain_auth0_ai import FGARetriever
 
-from helpers.fga_retriever import FGARetriever
 from helpers.memory_store import MemoryStore
 from helpers.read_documents import read_documents
 
