@@ -21,14 +21,14 @@ Below is a high-level workflow:
 
 Explore the following examples demonstrating the integration of **Okta FGA** with **LangChain** and **LlamaIndex** retrievers:
 
-- **LangChain with FGARetriever:**  
+- **LangChain with FGARetriever (JavaScript):**  
    An implementation showcasing how to wrap a LangChain retriever with FGARetriever to enforce authorization checks during document retrieval.  
    [View Example](https://github.com/oktadev/auth0-ai-samples/tree/main/authorization-for-rag/lanchain-js)
 
 - **LangChain with FGARetriever (Python):**  
    A Python implementation demonstrating authorization-aware document retrieval using LangChain and FGARetriever.  
    [View Example](https://github.com/oktadev/auth0-ai-samples/tree/main/authorization-for-rag/langchain-python)
-   
+
 - **LangGraph with FGARetriever (Python):**  
    Shows how to integrate FGARetriever with LangGraph for authorized document retrieval in Python applications.  
    [View Example](https://github.com/oktadev/auth0-ai-samples/tree/main/authorization-for-rag/langgraph-python)
