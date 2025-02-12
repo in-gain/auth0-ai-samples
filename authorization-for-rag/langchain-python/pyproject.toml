@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "langchain-python-rag"
+version = "0.1.0"
+description = "RAG application with authorization using OpenFGA"
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.11"
+python-dotenv = "1.0.1"
+langchain = "0.3.18"
+langchain-community = "0.3.17"
+openfga-sdk = "0.9.1"
+faiss-cpu = "1.10.0"
+langchain-openai = "0.3.5"
+langchain-auth0-ai = { git = "https://github.com/auth0-lab/auth0-ai-python.git", subdirectory = "packages/langchain-auth0-ai", branch = "main" }
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

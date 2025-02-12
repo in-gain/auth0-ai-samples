@@ -3,10 +3,10 @@ from langchain.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from langchain_openai import ChatOpenAI
-from helpers.memory_store import MemoryStore
+from langchain_auth0_ai import FGARetriever
 from openfga_sdk.client.models import ClientBatchCheckItem
+from helpers.memory_store import MemoryStore
 from helpers.read_documents import read_documents
-from helpers.fga_retriever import FGARetriever
 
 load_dotenv()
 
