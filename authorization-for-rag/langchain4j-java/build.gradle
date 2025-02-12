@@ -30,3 +30,8 @@ java {
 
 group = 'com.example'
 version = '1.0-SNAPSHOT' 
+
+task runFGAInit(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'rag.FGAInit'
+}

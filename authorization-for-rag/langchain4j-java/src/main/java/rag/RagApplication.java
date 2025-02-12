@@ -46,12 +46,12 @@ public class RagApplication {
                 .modelName(GPT_4_O_MINI)
                 .build();
 
-        // ChatLanguageModel CHAT_MODEL_OLLAMA = OllamaChatModel.builder()
+        // final ChatLanguageModel CHAT_MODEL_OLLAMA = OllamaChatModel.builder()
         // .baseUrl("http://localhost:11434")
         // .modelName("deepseek-r1:1.5b")
         // .build();
 
-        var user = "user1";
+        var user = "user2";
         // 1. Read and load documents from the assets folder
         var documents = FileSystemDocumentLoader.loadDocuments("src/main/resources/docs");
         // 2. Create an in-memory vector store from the documents.

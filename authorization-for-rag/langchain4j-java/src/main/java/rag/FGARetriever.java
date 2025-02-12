@@ -53,28 +53,28 @@ public class FGARetriever implements ContentRetriever {
     private final ConsistencyPreference consistencyPreference;
     private final Function<Content, ClientBatchCheckItem> buildQuery;
 
-    FGARetriever(ContentRetriever baseRetriever, Function<Content, ClientBatchCheckItem> buildQuery, ConsistencyPreference consistencyPreference, OpenFgaClient fgaClient) throws Exception {
+    FGARetriever(ContentRetriever baseRetriever, Function<Content, ClientBatchCheckItem> buildQuery,
+                 ConsistencyPreference consistencyPreference, OpenFgaClient fgaClient) throws Exception {
         this.baseRetriever = baseRetriever;
         this.fgaClient = fgaClient;
         this.buildQuery = buildQuery;
         this.consistencyPreference = consistencyPreference;
     }
 
-    FGARetriever(ContentRetriever baseRetriever, Function<Content, ClientBatchCheckItem> buildQuery, ConsistencyPreference consistencyPreference) throws Exception {
+    FGARetriever(ContentRetriever baseRetriever, Function<Content, ClientBatchCheckItem> buildQuery,
+                 ConsistencyPreference consistencyPreference) throws Exception {
         this(baseRetriever,
                 buildQuery,
                 consistencyPreference,
                 new OpenFgaClient(new ClientConfiguration()
-                        .apiUrl(System.getProperty("FGA_API_URL", "https://api.us1.fga.dev"))
+                        .apiUrl(System.getProperty("FGA_API_URL", "http://localhost:8080"))
                         .storeId(System.getProperty("FGA_STORE_ID"))
+                        // Credentials required only for Auth0 FGA
                         .credentials(new Credentials(new ClientCredentials()
                                 .apiTokenIssuer(System.getProperty("FGA_API_TOKEN_ISSUER", "auth.fga.dev"))
                                 .apiAudience(System.getProperty("FGA_API_AUDIENCE", "https://api.us1.fga.dev/"))
                                 .clientId(System.getProperty("FGA_CLIENT_ID"))
-                                .clientSecret(System.getProperty("FGA_CLIENT_SECRET"))
-                        ))
-                )
-        );
+                                .clientSecret(System.getProperty("FGA_CLIENT_SECRET"))))));
 
     }
 
@@ -83,16 +83,19 @@ public class FGARetriever implements ContentRetriever {
     }
 
     /**
-     * Creates a new FGARetriever instance using the given arguments and optional OpenFgaClient.
+     * Creates a new FGARetriever instance using the given arguments and optional
+     * OpenFgaClient.
      *
      * @param retriever  - The underlying retriever instance to fetch documents.
-     * @param buildQuery - A function to generate access check requests for each document.
-     * @return A newly created FGARetriever instance configured with the provided arguments.
+     * @param buildQuery - A function to generate access check requests for each
+     *                   document.
+     * @return A newly created FGARetriever instance configured with the provided
+     * arguments.
      */
-    public static FGARetriever create(ContentRetriever retriever, Function<Content, ClientBatchCheckItem> buildQuery) throws Exception {
+    public static FGARetriever create(ContentRetriever retriever, Function<Content, ClientBatchCheckItem> buildQuery)
+            throws Exception {
         return new FGARetriever(retriever, buildQuery);
     }
-
 
     /**
      * Retrieves documents based on the provided query parameters, processes
@@ -129,22 +132,23 @@ public class FGARetriever implements ContentRetriever {
             var permissionsMap = checkPermissions(checks);
             // filter based on permission
             return relevantContent.stream()
-                    .filter(doc -> Boolean.TRUE.equals(permissionsMap.get(documentToObject.get(doc))))
+                    .filter(doc -> permissionsMap.get(documentToObject.get(doc)))
                     .collect(Collectors.toList());
         } catch (FgaInvalidParameterException | FgaValidationError | ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
-
-
     }
 
     /**
      * Checks permissions for a list of client requests.
      *
-     * @param checks - An array of `ClientBatchCheckItem` objects representing the permissions to be checked.
-     * @return A `Map` where the keys are object identifiers and the values are booleans indicating whether the permission is allowed.
+     * @param checks - An array of `ClientBatchCheckItem` objects representing the
+     *               permissions to be checked.
+     * @return A `Map` where the keys are object identifiers and the values are
+     * booleans indicating whether the permission is allowed.
      */
-    private Map<String, Boolean> checkPermissions(List<ClientBatchCheckItem> checks) throws FgaInvalidParameterException, FgaValidationError, ExecutionException, InterruptedException {
+    private Map<String, Boolean> checkPermissions(List<ClientBatchCheckItem> checks)
+            throws FgaInvalidParameterException, FgaValidationError, ExecutionException, InterruptedException {
         var options = new ClientBatchCheckOptions().consistency(consistencyPreference);
         var request = new ClientBatchCheckRequest().checks(checks);
         var response = fgaClient.batchCheck(request, options).get();
