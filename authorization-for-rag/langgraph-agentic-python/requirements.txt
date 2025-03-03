@@ -1,0 +1,6 @@
+langgraph==0.3.2
+langchain-openai==0.3.7
+python-dotenv==1.0.1
+faiss-cpu==1.10.0
+langchain-community==0.3.18
+langchain-auth0-ai @ git+https://github.com/auth0-lab/auth0-ai-python.git@d42db415544b91224d3e2134c228436ccecd091d#subdirectory=packages/langchain-auth0-ai
