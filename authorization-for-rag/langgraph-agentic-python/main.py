@@ -28,7 +28,7 @@ class State(TypedDict):
 
 @tool
 def agent_retrieve_context_tool(query: str):
-    """Call to get information about a company, e.g. What is the finantial outlook for ZEKO?"""
+    """Call to get information about a company, e.g. What is the financial outlook for ZEKO?"""
     documents = read_documents()
     vector_store = MemoryStore.from_documents(documents)
 
