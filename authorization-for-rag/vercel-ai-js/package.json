@@ -1,10 +1,10 @@
 {
-  "name": "openai-rag-fga",
+  "name": "vercel-ai-rag-fga",
   "version": "1.0.0",
-  "description": "",
+  "description": "RAG with authorization using Vercel AI SDK and OpenFGA",
   "main": "index.js",
   "scripts": {
-    "start": "npx tsx src/index.ts",
+    "start": "npx tsx index.ts",
     "fga:init": "npx tsx ./scripts/fga-init.ts"
   },
   "author": {
@@ -13,10 +13,12 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
+    "@ai-sdk/openai": "^1.3.9",
     "@auth0/ai": "^2.0.1",
     "@openfga/sdk": "^0.8.0",
+    "ai": "4.3.4",
     "dotenv": "^16.4.7",
     "faiss-node": "0.5.0",
-    "openai": "^4.79.1"
+    "zod": "^3.24.2"
   }
 }

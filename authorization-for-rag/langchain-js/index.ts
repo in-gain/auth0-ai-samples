@@ -1,21 +1,20 @@
 /**
- * LangChain Example: Retrievers with Okta FGA (Fine-Grained Authorization)
+ * LangChain Example: Retrievers with Auth0 FGA (Fine-Grained Authorization)
  */
 import "dotenv/config";
 
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { OpenAIEmbeddings } from "@langchain/openai";
-// Once published to NPM, this will become `import { FGARetriever } from "@auth0/ai-langchain";`
-import { FGARetriever } from "auth0-ai-js/packages/ai-langchain/src";
+import { FGARetriever } from "@auth0/ai-langchain/RAG";
 import { RetrievalChain } from "./helpers/langchain";
 import { readDocuments } from "./helpers/read-documents";
 
 /**
- * Demonstrates the usage of the Okta FGA (Fine-Grained Authorization)
+ * Demonstrates the usage of the Auth0 FGA (Fine-Grained Authorization)
  * with a vector store index to query documents with permission checks.
  *
  * The FGARetriever checks if the user has the "viewer" relation to the document
- * based on predefined tuples in Okta FGA.
+ * based on predefined tuples in Auth0 FGA.
  *
  * Example:
  * - A tuple {user: "user:*", relation: "viewer", object: "doc:public-doc"} allows all users to view "public-doc".
@@ -25,7 +24,7 @@ import { readDocuments } from "./helpers/read-documents";
  */
 async function main() {
   console.info(
-    "\n..:: Langchain Example: Retrievers with Okta FGA (Fine-Grained Authorization)\n\n"
+    "\n..:: Langchain Example: Retrievers with Auth0 FGA (Fine-Grained Authorization)\n\n"
   );
 
   // UserID
@@ -59,7 +58,7 @@ async function main() {
   console.info(answer);
 
   /**
-   * If we add the following tuple to the Okta FGA:
+   * If we add the following tuple to the Auth0 FGA:
    *
    *    { user: "user:user1", relation: "viewer", object: "doc:private-doc" }
    *

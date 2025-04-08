@@ -1,25 +1,21 @@
 /**
- * LlamaIndex Example: Retrievers with Okta FGA (Fine-Grained Authorization)
+ * LlamaIndex Example: Retrievers with Auth0 FGA (Fine-Grained Authorization)
  *
  *
  */
 import "dotenv/config";
 
-import {
-  OpenAIAgent,
-  QueryEngineTool,
-  VectorStoreIndex,
-  SimpleDirectoryReader,
-} from "llamaindex";
-// Once published to NPM, this will become `import { FGARetriever } from "@auth0/ai-llamaindex";`
-import { FGARetriever } from "auth0-ai-js/packages/ai-llamaindex/src";
+import { OpenAIAgent, QueryEngineTool, VectorStoreIndex } from "llamaindex";
+import { SimpleDirectoryReader } from "@llamaindex/readers/directory";
+import { FGARetriever } from "@auth0/ai-llamaindex";
 
 /**
- * Demonstrates the usage of the Okta FGA (Fine-Grained Authorization)
+/**
+ * Demonstrates the usage of the Auth0 FGA (Fine-Grained Authorization)
  * with a vector store index to query documents with permission checks.
  *
  * The FGARetriever checks if the user has the "viewer" relation to the document
- * based on predefined tuples in Okta FGA.
+ * based on predefined tuples in Auth0 FGA.
  *
  * Example:
  * - A tuple {user: "user:*", relation: "viewer", object: "doc:public-doc"} allows all users to view "public-doc".
@@ -29,7 +25,7 @@ import { FGARetriever } from "auth0-ai-js/packages/ai-llamaindex/src";
  */
 async function main() {
   console.log(
-    "\n..:: LlamaIndex Example: Retrievers with Okta FGA (Fine-Grained Authorization)\n\n"
+    "\n..:: LlamaIndex Example: Retrievers with Auth0 FGA (Fine-Grained Authorization)\n\n"
   );
 
   // UserID
@@ -45,7 +41,7 @@ async function main() {
     // FGA tuple to query for the user's permissions
     buildQuery: (document) => ({
       user: `user:${user}`,
-      object: `doc:${document.metadata.file_name.split(".")[0]}`,
+      object: `doc:${document.node.metadata.file_name.split(".")[0]}`,
       relation: "viewer",
     }),
   });
@@ -73,7 +69,7 @@ async function main() {
   console.log(response.message.content);
 
   /**
-   * If we add the following tuple to the Okta FGA:
+   * If we add the following tuple to the Auth0 FGA:
    *
    *    { user: "user:user1", relation: "viewer", object: "doc:private-doc" }
    *

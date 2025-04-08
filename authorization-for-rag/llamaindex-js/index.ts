@@ -1,22 +1,21 @@
 /**
- * LlamaIndex Example: Retrievers with Okta FGA (Fine-Grained Authorization)
+ * LlamaIndex Example: Retrievers with Auth0 FGA (Fine-Grained Authorization)
  *
  *
  */
 import "dotenv/config";
 
 import { VectorStoreIndex } from "llamaindex";
-// Once published to NPM, this will become `import { FGARetriever } from "@auth0/ai-llamaindex";`
-import { FGARetriever } from "auth0-ai-js/packages/ai-llamaindex/src";
+import { FGARetriever } from "@auth0/ai-llamaindex";
 
 import { readDocuments } from "./helpers/read-documents";
 
 /**
- * Demonstrates the usage of the Okta FGA (Fine-Grained Authorization)
+ * Demonstrates the usage of the Auth0 FGA (Fine-Grained Authorization)
  * with a vector store index to query documents with permission checks.
  *
  * The FGARetriever checks if the user has the "viewer" relation to the document
- * based on predefined tuples in Okta FGA.
+ * based on predefined tuples in Auth0 FGA.
  *
  * Example:
  * - A tuple {user: "user:*", relation: "viewer", object: "doc:public-doc"} allows all users to view "public-doc".
@@ -26,7 +25,7 @@ import { readDocuments } from "./helpers/read-documents";
  */
 async function main() {
   console.log(
-    "\n..:: LlamaIndex Example: Retrievers with Okta FGA (Fine-Grained Authorization)\n\n"
+    "\n..:: LlamaIndex Example: Retrievers with Auth0 FGA (Fine-Grained Authorization)\n\n"
   );
 
   // UserID
@@ -43,7 +42,7 @@ async function main() {
       // FGA tuple to query for the user's permissions
       buildQuery: (document) => ({
         user: `user:${user}`,
-        object: `doc:${document.metadata.id}`,
+        object: `doc:${document.node.metadata.id}`,
         relation: "viewer",
       }),
     }),
@@ -60,7 +59,7 @@ async function main() {
   console.log(vsiResponse.toString());
 
   /**
-   * If we add the following tuple to the Okta FGA:
+   * If we add the following tuple to the Auth0 FGA:
    *
    *    { user: "user:user1", relation: "viewer", object: "doc:private-doc" }
    *
