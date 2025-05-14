@@ -5,13 +5,16 @@ import { z } from "zod";
 
 import { Auth0AI, getCIBACredentials } from "@auth0/ai-vercel";
 import { AccessDeniedInterrupt } from "@auth0/ai/interrupts";
-import { Context } from "../../types/ai-context";
+
+export type Context = {
+  userId: string;
+};
 
 const auth0AI = new Auth0AI();
 
 export const buy = (context: Context) => {
   const withAsyncAuthorization = auth0AI.withAsyncUserConfirmation({
-    userID: context.userID,
+    userID: context.userId,
     bindingMessage: async ({ ticker, qty }) =>
       `Do you want to buy ${qty} shares of ${ticker}`,
     scopes: ["openid", "stock:trade"],
