@@ -7,13 +7,15 @@ export async function POST(req: Request) {
 
   // streamText is used to run the request
   const result = streamText({
-    model: openai("gpt-4o-mini"),
-    maxSteps: 2,
-    tools: {
-      userInfo: getUserInfoTool,
-    },
     messages,
-    system: "You are an AI agent for tool calling with Auth0.",
+    model: openai("gpt-4o-mini"),
+    // Provides external tools the model can call.
+    // In this case, a User Info tool.
+    tools: { getUserInfoTool },
+    maxSteps: 2,
+    onError({ error }) {
+      console.error("streamText error", { error });
+    },
   });
 
   return result.toDataStreamResponse();
