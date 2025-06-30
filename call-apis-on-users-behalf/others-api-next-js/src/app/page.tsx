@@ -1,53 +1,79 @@
-"use client";
+import { LogIn, UserPlus } from 'lucide-react';
+import { ChatWindow } from '@/components/ChatWindow';
+import { GuideInfoBox } from '@/components/guide/GuideInfoBox';
+import { Button } from '@/components/ui/button';
+import { auth0 } from '@/lib/auth0';
 
-import { useUser } from "@auth0/nextjs-auth0";
-import { useCompletion } from "@ai-sdk/react";
+export default async function Home() {
+  const session = await auth0.getSession();
 
-export default function Page() {
-  // Extract the user object and loading state from Auth0.
-  const { user, isLoading } = useUser();
-  // Use streaming response from the Next.js route.
-  const { completion, input, handleInputChange, handleSubmit } = useCompletion({
-    api: "/api/chat",
-  });
-
-  if (isLoading) return <div>Loading...</div>;
-
-  // If no user, show sign-up and login buttons.
-  if (!user) {
+  if (!session) {
     return (
-      <main className="flex flex-col items-center justify-center h-screen p-10">
-        <a href="/auth/login?screen_hint=signup&connection=google-oauth2&access_type=offline&prompt=consent">
-          <button>Sign up with Google</button>
-        </a>
-        <a href="/auth/login?connection=google-oauth2&access_type=offline&prompt=consent">
-          <button>Log in with Google</button>
-        </a>
-      </main>
+      <div className="flex flex-col items-center justify-center min-h-[50vh] my-auto gap-4">
+        <h2 className="text-xl">You are not logged in</h2>
+        <div className="flex gap-4">
+          <Button asChild variant="default" size="default">
+            <a href="/auth/login" className="flex items-center gap-2">
+              <LogIn />
+              <span>Login</span>
+            </a>
+          </Button>
+          <Button asChild variant="default" size="default">
+            <a href="/auth/login?screen_hint=signup">
+              <UserPlus />
+              <span>Sign up</span>
+            </a>
+          </Button>
+        </div>
+      </div>
     );
   }
 
-  // If user exists, show a welcome message and logout button.
+  const InfoCard = (
+    <GuideInfoBox>
+      <ul>
+        <li className="text-l">
+          🤝
+          <span className="ml-2">
+            This template showcases a simple chatbot using Vercel's{' '}
+            <a className="text-blue-500" href="https://sdk.vercel.ai/docs" target="_blank">
+              AI SDK
+            </a>{' '}
+            in a{' '}
+            <a className="text-blue-500" href="https://nextjs.org/" target="_blank">
+              Next.js
+            </a>{' '}
+            project.
+          </span>
+        </li>
+        <li className="hidden text-l md:block">
+          💻
+          <span className="ml-2">
+            You can find the prompt and model logic for this use-case in <code>app/api/chat/route.ts</code>.
+          </span>
+        </li>
+        <li className="hidden text-l md:block">
+          🎨
+          <span className="ml-2">
+            The main frontend logic is found in <code>app/page.tsx</code>.
+          </span>
+        </li>
+        <li className="text-l">
+          👇
+          <span className="ml-2">
+            Try asking e.g. <code>What can you help me with?</code> below!
+          </span>
+        </li>
+      </ul>
+    </GuideInfoBox>
+  );
+
   return (
-    <main className="flex flex-col items-center justify-center h-screen p-10">
-      <h1>Welcome, {user.name}!</h1>
-      {/* Main form for interacting with the AI. */}
-      <form onSubmit={handleSubmit}>
-        <input
-          name="prompt"
-          value={input}
-          onChange={handleInputChange}
-          id="input"
-          className="border-zinc-800 border-2 rounded-md p-2 m-2"
-        />
-        <button
-          type="submit"
-          className="border-zinc-800 bg-zinc-800 border-2 rounded-md p-2 m-2 text-zinc-50 hover:bg-black"
-        >
-          Submit
-        </button>
-        <div>{completion}</div>
-      </form>
-    </main>
+    <ChatWindow
+      endpoint="api/chat"
+      emoji="🤖"
+      placeholder={`Hello ${session?.user?.name}, I'm your personal assistant. How can I help you today?`}
+      emptyStateComponent={InfoCard}
+    />
   );
 }
