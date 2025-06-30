@@ -6,7 +6,9 @@ import type { FormEvent, ReactNode } from 'react';
 import { toast } from 'sonner';
 import { StickToBottom, useStickToBottomContext } from 'use-stick-to-bottom';
 import { ArrowDown, ArrowUpIcon, LoaderCircle } from 'lucide-react';
+import { useInterruptions } from '@auth0/ai-vercel/react';
 
+import { FederatedConnectionInterruptHandler } from '@/components/auth0-ai/FederatedConnectionInterruptHandler';
 import { ChatMessageBubble } from '@/components/ChatMessageBubble';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/utils/cn';
@@ -110,13 +112,15 @@ export function ChatWindow(props: {
   placeholder?: string;
   emoji?: string;
 }) {
-  const chat = useChat({
-    api: props.endpoint,
-    onError: (e: Error) => {
-      console.error('Error: ', e);
-      toast.error(`Error while processing your request`, { description: e.message });
-    },
-  });
+  const chat = useInterruptions((handler) =>
+    useChat({
+      api: props.endpoint,
+      onError: handler((e: Error) => {
+        console.error('Error: ', e);
+        toast.error(`Error while processing your request`, { description: e.message });
+      }),
+    }),
+  );
 
   function isChatLoading(): boolean {
     return chat.status === 'streaming';
@@ -143,6 +147,9 @@ export function ChatWindow(props: {
                 messages={chat.messages}
                 emptyStateComponent={props.emptyStateComponent}
               />
+              <div className="flex flex-col max-w-[768px] mx-auto pb-12 w-full">
+                <FederatedConnectionInterruptHandler interrupt={chat.toolInterrupt} />
+              </div>
             </>
           )
         }
