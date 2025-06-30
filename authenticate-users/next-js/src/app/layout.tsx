@@ -7,6 +7,8 @@ import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { ActiveLink } from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
+import { auth0 } from '@/lib/auth0';
+import UserButton from '@/components/auth0/user-button';
 
 const robotoMono = Roboto_Mono({ weight: '400', subsets: ['latin'] });
 const publicSans = Inter({ weight: '400', subsets: ['latin'] });
@@ -15,6 +17,8 @@ const TITLE = 'Auth0 Assistant0: An Auth0 + LangChain + Next.js Template';
 const DESCRIPTION = 'Starter template showing how to use Auth0 in LangChain + Next.js projects.';
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth0.getSession();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -49,6 +53,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 </nav>
               </div>
               <div className="flex justify-center">
+                {session && (
+                  <div className="flex items-center gap-2 px-4 text-white">
+                    <UserButton user={session?.user!} logoutUrl="/auth/logout" />
+                  </div>
+                )}
                 <Button asChild variant="header" size="default">
                   <a href="https://github.com/oktadev/auth0-assistant0" target="_blank">
                     <Github className="size-3" />
