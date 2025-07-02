@@ -1,6 +1,9 @@
 import { NextRequest } from 'next/server';
 import { streamText, Message, createDataStreamResponse, DataStreamWriter } from 'ai';
 import { openai } from '@ai-sdk/openai';
+import { setAIContext } from '@auth0/ai-vercel';
+
+import { shopOnlineTool } from '@/lib/tools/shop-online';
 
 export const runtime = 'nodejs';
 
@@ -12,7 +15,11 @@ const AGENT_SYSTEM_TEMPLATE = `You are a personal assistant named Assistant0. Yo
 export async function POST(req: NextRequest) {
   const { id, messages }: { id: string; messages: Array<Message>; selectedChatModel: string } = await req.json();
 
-  const tools = {};
+  setAIContext({ threadID: id });
+
+  const tools = {
+    shopOnlineTool,
+  };
 
   return createDataStreamResponse({
     execute: async (dataStream: DataStreamWriter) => {

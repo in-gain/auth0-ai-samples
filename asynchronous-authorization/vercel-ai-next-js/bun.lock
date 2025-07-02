@@ -66,7 +66,7 @@
 
     "@auth0/ai": ["@auth0/ai@3.0.0", "", { "dependencies": { "@openfga/sdk": "^0.8.0", "auth0": "^4.18.0", "jose": "^5.9.6", "openid-client": "^6.1.7", "stable-hash": "^0.0.5", "tempbox": "^1.1.1", "zod": "^3.24.2" } }, "sha512-jokm3cL0Y0tyGnXJOi5gadqxjoBVZfLmkr5IagSK94BVDmJ8kn0QniwbD9k5xYIv17q0g2hh5TNIfJl57LXLdg=="],
 
-    "@auth0/ai-vercel": ["@auth0/ai-vercel@3.1.0", "", { "dependencies": { "@auth0/ai": "*", "auth0": "^4.18.0", "stable-hash": "^0.0.5", "zod-to-json-schema": "^3.24.5" }, "peerDependencies": { "ai": "^4.1.54", "react": "^19.0.0" } }, "sha512-9/WI5DPVnG6ts3ROTpKtYkYNnUMNHs3iZDOP4/CW5eI91Gs6Ae1tMBV0maaNHrEUIp8C9pDwJadq8WJOVviejA=="],
+    "@auth0/ai-vercel": ["@auth0/ai-vercel@3.5.0", "", { "dependencies": { "@auth0/ai": "*", "auth0": "^4.18.0", "stable-hash": "^0.0.5", "zod-to-json-schema": "^3.24.5" }, "peerDependencies": { "ai": "^4.1.54", "react": "^19.0.0" } }, "sha512-P48ApNqtdvW/SVnxJmcl4FlI3xPp5tcaWwIgaCHPPo5Kf6YtxogdOng9FvDW/0hiNGB1L0z1VYczfFeUlhikYA=="],
 
     "@auth0/nextjs-auth0": ["@auth0/nextjs-auth0@4.4.2", "", { "dependencies": { "@edge-runtime/cookies": "^5.0.1", "@panva/hkdf": "^1.2.1", "jose": "^5.9.6", "oauth4webapi": "^3.1.2", "swr": "^2.2.5" }, "peerDependencies": { "next": "^14.2.25 || ^15.2.3", "react": "^18.0.0 || ^19.0.0 || ^19.0.0-0", "react-dom": "^18.0.0 || ^19.0.0 || ^19.0.0-0" } }, "sha512-vLz6C+b1jxbxpYg63+JpcoRF+w287w0YzyWj2kANHMDLFzwVx7hTooqAGdiywNONxiMLQbc2vFDpGeSA0FjSjA=="],
 
