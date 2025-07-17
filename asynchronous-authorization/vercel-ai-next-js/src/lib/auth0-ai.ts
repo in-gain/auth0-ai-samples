@@ -12,7 +12,7 @@ export const withAsyncAuthorization = auth0AI.withAsyncUserConfirmation({
     return user?.sub as string;
   },
   bindingMessage: async ({ product, qty }) => `Do you want to buy ${qty} ${product}`,
-  scopes: ['openid', 'product:buy'],
+  scopes: ['openid', 'product:buy'], // add any scopes you want to use with your API
   audience: process.env['AUDIENCE']!,
 
   /**

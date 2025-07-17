@@ -21,11 +21,19 @@ cd auth0-ai-samples/asynchronous-authorization/vercel-ai-next-js
 
 Next, you'll need to set up environment variables in your repo's `.env.local` file. Copy the `.env.example` file to `.env.local`.
 
-You can setup a new Auth0 tenant with Token Vault enabled following the instructions [here](https://auth0.com/ai/docs/call-others-apis-on-users-behalf).
+- To start with the examples, you'll just need to add your OpenAI API key and Auth0 credentials for the Web app and Machine to Machine App.
+  - You can setup a new Auth0 tenant with an Auth0 Web App and Token Vault following the Prerequisites instructions [here](https://auth0.com/ai/docs/call-others-apis-on-users-behalf).
+  - Click on the tenant name on the [Quickstarts](https://auth0.com/ai/docs/call-your-apis-on-users-behalf), Go to the app settings (**Applications** -> **Applications** -> **WebApp Quickstart Client** -> **Settings** -> **Advanced Settings** -> **Grant Types**) and enable the CIBA grant and save.
 
-To start with the basic examples, you'll just need to add your OpenAI API key and Auth0 credentials.
+Next, install the required packages using your preferred package manager and initialize the database.
 
-Next, install the required packages using your preferred package manager (e.g. `bun install` or `npm install`).
+```bash
+bun install # or npm install
+# Optional: start the postgres database
+docker compose up -d
+# Optional: create the database schema
+bun db:migrate # or npm run db:migrate
+```
 
 Now you're ready to run the development server:
 

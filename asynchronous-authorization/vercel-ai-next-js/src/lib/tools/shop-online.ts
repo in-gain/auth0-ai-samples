@@ -18,7 +18,7 @@ export const shopOnlineTool = withAsyncAuthorization(
       const apiUrl = process.env['SHOP_API_URL']!;
 
       if (!apiUrl) {
-        // No API set, mock a response
+        // No API set, mock a response or return error
         return `Ordered ${qty} ${product}`;
       }
 
