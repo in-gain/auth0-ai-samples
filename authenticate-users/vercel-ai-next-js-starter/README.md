@@ -25,7 +25,15 @@ You can setup a new Auth0 tenant with Token Vault enabled following the instruct
 
 To start with the basic examples, you'll just need to add your OpenAI API key and Auth0 credentials.
 
-Next, install the required packages using your preferred package manager (e.g. `bun install` or `npm install`).
+Next, install the required packages using your preferred package manager and initialize the database.
+
+```bash
+bun install # or npm install
+# Optional: start the postgres database
+docker compose up -d
+# Optional: create the database schema
+bun db:migrate # or npm run db:migrate
+```
 
 Now you're ready to run the development server:
 
