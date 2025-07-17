@@ -70,8 +70,6 @@ This template scaffolds an Auth0 + LangChain.js + Next.js starter app. It mainly
 
 It's Vercel's free-tier friendly too! Check out the [bundle size stats below](#-bundle-size).
 
-You can check out a hosted version of this repo here: //TODO
-
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/oktadev/auth0-assistant0)
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Foktadev%2Fauth0-assistant0)
 
