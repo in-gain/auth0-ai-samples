@@ -1,5 +1,5 @@
 import type { Message } from 'ai/react';
-import { MemoizedMarkdown } from './MemoizedMarkdown';
+import { MemoizedMarkdown } from './memoized-markdown';
 import { cn } from '@/utils/cn';
 
 export function ChatMessageBubble(props: { message: Message; aiEmoji?: string }) {

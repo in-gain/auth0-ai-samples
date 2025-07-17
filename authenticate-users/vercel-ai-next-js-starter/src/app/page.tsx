@@ -1,5 +1,5 @@
 import { LogIn, UserPlus } from 'lucide-react';
-import { ChatWindow } from '@/components/ChatWindow';
+import { ChatWindow } from '@/components/chat-window';
 import { GuideInfoBox } from '@/components/guide/GuideInfoBox';
 import { Button } from '@/components/ui/button';
 
