@@ -1,5 +1,4 @@
 import { Auth0AI, getAccessTokenForConnection } from '@auth0/ai-vercel';
-
 import { getRefreshToken } from './auth0';
 
 // Get the access token for a connection via Auth0

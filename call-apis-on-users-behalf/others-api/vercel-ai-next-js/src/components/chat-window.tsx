@@ -6,10 +6,11 @@ import type { FormEvent, ReactNode } from 'react';
 import { toast } from 'sonner';
 import { StickToBottom, useStickToBottomContext } from 'use-stick-to-bottom';
 import { ArrowDown, ArrowUpIcon, LoaderCircle } from 'lucide-react';
-import { useInterruptions } from '@auth0/ai-vercel/react';
 
-import { FederatedConnectionInterruptHandler } from '@/components/auth0-ai/FederatedConnectionInterruptHandler';
-import { ChatMessageBubble } from '@/components/ChatMessageBubble';
+import { useInterruptions } from '@auth0/ai-vercel/react';
+import { FederatedConnectionInterruptHandler } from '@/components/auth0-ai/FederatedConnections/FederatedConnectionInterruptHandler';
+
+import { ChatMessageBubble } from '@/components/chat-message-bubble';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/utils/cn';
 

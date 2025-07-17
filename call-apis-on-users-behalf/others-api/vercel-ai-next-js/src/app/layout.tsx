@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { Github } from 'lucide-react';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 
-import { ActiveLink } from '@/components/Navbar';
+import { ActiveLink } from '@/components/navbar';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
 import { auth0 } from '@/lib/auth0';
@@ -49,7 +49,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <span className={`${robotoMono.className} text-white text-2xl`}>Assistant0</span>
                 <nav className="flex gap-1 flex-col md:flex-row">
                   <ActiveLink href="/">Chat</ActiveLink>
-                  {/* <ActiveLink href="/act">Interact //TODO</ActiveLink> */}
+                  <ActiveLink href="/documents">Documents</ActiveLink>
                 </nav>
               </div>
               <div className="flex justify-center">
@@ -70,7 +70,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <div className="absolute inset-0">{children}</div>
             </div>
           </div>
-          <Toaster />
+          <Toaster richColors />
         </NuqsAdapter>
       </body>
     </html>
