@@ -16,7 +16,7 @@ First, clone this repo and download it locally.
 
 ```bash
 git clone https://github.com/auth0-samples/auth0-ai-samples.git
-cd auth0-ai-samples/call-apis-on-users-behalf/your-api/vercel-ai-next-js
+cd auth0-ai-samples/authenticate-users/vercel-ai-next-js
 ```
 
 Next, you'll need to set up environment variables in your repo's `.env.local` file. Copy the `.env.example` file to `.env.local`.
