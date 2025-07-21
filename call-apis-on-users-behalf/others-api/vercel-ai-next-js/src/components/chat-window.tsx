@@ -114,6 +114,7 @@ export function ChatWindow(props: {
   emoji?: string;
 }) {
   const chat = useInterruptions((handler) =>
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     useChat({
       api: props.endpoint,
       onError: handler((e: Error) => {

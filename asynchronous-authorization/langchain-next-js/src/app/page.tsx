@@ -38,14 +38,6 @@ export default async function Home() {
             This template showcases a simple chatbot using{' '}
             <a className="text-blue-500" href="https://langchain-ai.github.io/langgraphjs/" target="_blank">
               LangGraph.js
-            </a>
-            ,{' '}
-            <a className="text-blue-500" href="https://js.langchain.com/docs/introduction/" target="_blank">
-              LangChain.js
-            </a>{' '}
-            and the Vercel{' '}
-            <a className="text-blue-500" href="https://sdk.vercel.ai/docs" target="_blank">
-              AI SDK
             </a>{' '}
             in a{' '}
             <a className="text-blue-500" href="https://nextjs.org/" target="_blank">
