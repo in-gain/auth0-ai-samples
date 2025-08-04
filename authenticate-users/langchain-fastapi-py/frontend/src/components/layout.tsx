@@ -1,12 +1,15 @@
 import { Routes, Route } from "react-router";
 import { Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import useAuth, { getLogoutUrl } from "@/lib/use-auth";
+import UserButton from "@/components/auth0/user-button";
 import { ActiveLink } from "@/components/navbar";
 
 import ChatPage from "@/pages/ChatPage";
 import ClosePage from "@/pages/ClosePage";
 
 export default function Layout() {
+  const { user } = useAuth();
 
   return (
     <div className="bg-secondary grid grid-rows-[auto_1fr] h-[100dvh]">
@@ -33,6 +36,11 @@ export default function Layout() {
           </nav>
         </div>
         <div className="flex justify-center">
+          {user && (
+            <div className="flex items-center gap-2 px-4 text-white">
+              <UserButton user={user} logoutUrl={getLogoutUrl()} />
+            </div>
+          )}
           <Button asChild variant="header" size="default">
             <a
               href="https://github.com/auth0-samples/auth0-assistant0-python"
