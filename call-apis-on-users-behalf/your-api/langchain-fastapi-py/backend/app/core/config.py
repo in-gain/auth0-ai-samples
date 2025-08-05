@@ -19,11 +19,10 @@ class Settings(BaseSettings):
     AUTH0_CLIENT_SECRET: str
     AUTH0_SECRET: str
     APP_BASE_URL: str
-    AUTH0_SHOP_AUDIENCE: str = "https://api.shop-online-demo.com"
 
     OPENAI_API_KEY: str
 
-    LANGGRAPH_URL: str = "http://localhost:54367"
+    LANGGRAPH_API_URL: str = "http://localhost:54367"
     LANGGRAPH_API_KEY: str = ""
 
     FRONTEND_HOST: str = "http://localhost:5173"

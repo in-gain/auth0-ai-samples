@@ -14,13 +14,11 @@ def parse_cors(v: Any) -> list[str] | str:
 class Settings(BaseSettings):
     APP_NAME: str = "Assistant0"
     API_PREFIX: str = "/api"
-
-    AUTH0_SHOP_AUDIENCE: str = "https://api.shop-online-demo.com"
     APP_BASE_URL: str
-
+    
     OPENAI_API_KEY: str
 
-    LANGGRAPH_URL: str = "http://localhost:54367"
+    LANGGRAPH_API_URL: str = "http://localhost:54367"
     LANGGRAPH_API_KEY: str = ""
 
     FRONTEND_HOST: str = "http://localhost:5173"

@@ -32,7 +32,7 @@ AUTH0_CLIENT_SECRET="<auth0-client-secret>"
 
 # API
 STOCK_API_URL=http://an-api-url
-AUDIENCE=sample-stock-api
+STOCK_API_AUDIENCE=sample-stock-api
 
 # OpenAI
 OPENAI_API_KEY="openai-api-key"
