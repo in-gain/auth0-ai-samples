@@ -64,3 +64,7 @@ Explore the following examples demonstrating the integration of **Auth0 FGA** wi
 - **Vercel AI + Next.js (JavaScript):**  
    A full fledged implementation using Vercel AI SDK with FGAFilter for authorized document retrieval in Next.js.  
    [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/authorization-for-rag/vercel-ai-next-js)
+
+- **LangChain + Next.js (JavaScript):**  
+   A full fledged implementation using LangGraph with FGARetriever for authorized document retrieval in Next.js.
+  [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/authorization-for-rag/langchain-next-js)
