@@ -18,7 +18,7 @@ export const buy = (context: Context) => {
     bindingMessage: async ({ ticker, qty }) =>
       `Do you want to buy ${qty} shares of ${ticker}`,
     scopes: ["openid", "stock:trade"],
-    audience: process.env["AUDIENCE"]!,
+    audience: process.env["STOCK_API_AUDIENCE"]!,
     /**
      * When this flag is set to `block`, the execution of the tool awaits
      * until the user approves or rejects the request.
