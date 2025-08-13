@@ -13,7 +13,13 @@ import { embeddings as embeddingsTable } from '@/lib/db/schema/embeddings';
 import { addRelation, deleteRelation } from '@/lib/fga/fga';
 
 export const createDocument = async (input: NewDocumentParams, text: string) => {
-  const { content, fileName, fileType, userId, userEmail, sharedWith } = insertDocumentSchema.parse(input);
+  // Use hardcoded user values for now
+  // replace with user from auth0 session
+  // const session = await auth0.getSession();
+  // const user = session?.user!;
+  const userId = '123';
+  const userEmail = 'test@test.com';
+  const { content, fileName, fileType, sharedWith } = insertDocumentSchema.parse(input);
 
   const [document] = await db
     .insert(documentsTable)
@@ -38,10 +44,13 @@ export const createDocument = async (input: NewDocumentParams, text: string) => 
   return true;
 };
 
-export async function getDocumentsForUser(
-  userId: string,
-  userEmail: string,
-): Promise<Omit<DocumentParams, 'content'>[]> {
+export async function getDocumentsForUser(): Promise<Omit<DocumentParams, 'content'>[]> {
+  // Use hardcoded user values for now
+  // replace with user from auth0 session
+  // const session = await auth0.getSession();
+  // const user = session?.user!;
+  const userId = '123';
+  const userEmail = 'test@test.com';
   try {
     const userDocuments = await db
       .select({
@@ -92,7 +101,12 @@ export async function shareDocument(documentId: string, sharedWith: string[]) {
   }
 }
 
-export async function deleteDocument(documentId: string, userEmail: string) {
+export async function deleteDocument(documentId: string) {
+  // Use hardcoded user values for now
+  // replace with user from auth0 session
+  // const session = await auth0.getSession();
+  // const user = session?.user!;
+  const userEmail = 'test@test.com';
   // delete the relationship tuples from FGA
   await deleteRelation(userEmail, documentId);
   const currentSharedWith = await db
