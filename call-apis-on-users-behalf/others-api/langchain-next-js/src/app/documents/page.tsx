@@ -3,10 +3,10 @@ import { revalidatePath } from 'next/cache';
 import { format } from 'date-fns';
 import { ReactNode } from 'react';
 
-import { auth0 } from '@/lib/auth0';
 import { getDocumentsForUser } from '@/lib/actions/documents';
 import DocumentUploadForm from '@/components/document-upload-form';
 import DocumentItemActions from '@/components/document-item-actions';
+import { auth0 } from '@/lib/auth0';
 
 export default async function DocumentsPage() {
   const session = await auth0.getSession();
@@ -17,7 +17,7 @@ export default async function DocumentsPage() {
   }
 
   // Fetch documents for the current user
-  const documents = await getDocumentsForUser(user.sub, user.email!);
+  const documents = await getDocumentsForUser();
 
   // This Server Action will be used for revalidation after any successful document action
   async function handleDocumentActionComplete() {
@@ -42,8 +42,6 @@ export default async function DocumentsPage() {
       <section className="mb-12">
         <div className="p-6 border rounded-lg shadow-sm bg-card text-card-foreground">
           <DocumentUploadForm
-            userId={user.sub}
-            userEmail={user.email!}
             onUploadSuccess={handleDocumentActionComplete}
           />
         </div>

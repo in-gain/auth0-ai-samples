@@ -11,15 +11,9 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    const userId = formData.get('userId') as string;
-    const userEmail = formData.get('userEmail') as string;
 
     if (!file) {
       return NextResponse.json({ message: 'No file provided.' }, { status: 400 });
-    }
-
-    if (!userId) {
-      return NextResponse.json({ message: 'User ID not provided.' }, { status: 400 });
     }
 
     // Validate file type
@@ -37,7 +31,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: `File too large. Maximum size is ${MAX_FILE_SIZE_MB}MB.` }, { status: 400 });
     }
 
-    console.log(`Received file for user ${userId}:`);
+    console.log(`Received file: ${file.name}`);
 
     // Read file content
     const [content, buffer] = await extractFileContent(file);
@@ -51,8 +45,6 @@ export async function POST(request: NextRequest) {
         content: buffer!,
         fileName: file.name,
         fileType: file.type,
-        userId,
-        userEmail,
         sharedWith: [],
       },
       content,
@@ -65,7 +57,6 @@ export async function POST(request: NextRequest) {
           fileName: file.name,
           fileType: file.type,
           fileSize: file.size,
-          userId: userId,
         },
         { status: 200 },
       );

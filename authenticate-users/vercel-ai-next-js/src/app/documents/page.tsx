@@ -17,7 +17,7 @@ export default async function DocumentsPage() {
   }
 
   // Fetch documents for the current user
-  const documents = await getDocumentsForUser(user.sub, user.email!);
+  const documents = await getDocumentsForUser();
 
   // This Server Action will be used for revalidation after any successful document action
   async function handleDocumentActionComplete() {
@@ -42,8 +42,6 @@ export default async function DocumentsPage() {
       <section className="mb-12">
         <div className="p-6 border rounded-lg shadow-sm bg-card text-card-foreground">
           <DocumentUploadForm
-            userId={user.sub}
-            userEmail={user.email!}
             onUploadSuccess={handleDocumentActionComplete}
           />
         </div>
@@ -78,7 +76,7 @@ export default async function DocumentsPage() {
         ) : (
           <div className="p-6 border rounded-lg shadow-sm bg-background text-center">
             <p className="text-muted-foreground">
-              You haven't uploaded any documents yet. Use the form above to get started.
+              You haven&apos;t uploaded any documents yet. Use the form above to get started.
             </p>
           </div>
         )}
