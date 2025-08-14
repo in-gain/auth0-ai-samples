@@ -1,8 +1,8 @@
+import { LogIn, UserPlus } from "lucide-react";
 import GuideInfoBox from "@/components/guide/guide-info-box";
 import { ChatWindow } from "@/components/chat-window";
-import useAuth, { getLoginUrl, getSignupUrl } from "@/lib/use-auth";
 import { Button } from "@/components/ui/button";
-import { LogIn, UserPlus } from "lucide-react";
+import useAuth, { getLoginUrl, getSignupUrl } from "@/lib/use-auth";
 
 export default function ChatPage() {
   const { user, isLoading } = useAuth();
@@ -32,6 +32,7 @@ export default function ChatPage() {
       </div>
     );
   }
+
   const InfoCard = (
     <GuideInfoBox>
       <ul>

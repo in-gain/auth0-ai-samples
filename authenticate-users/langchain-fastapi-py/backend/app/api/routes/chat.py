@@ -50,9 +50,9 @@ async def api_route(
                         method=request.method,
                         url=target_url,
                         headers=headers,
-                        content=body
-                        if request.method in ("POST", "PUT", "PATCH")
-                        else None,
+                        content=(
+                            body if request.method in ("POST", "PUT", "PATCH") else None
+                        ),
                     ) as proxied_response:
                         if proxied_response.status_code != 200:
                             response_text = await proxied_response.aread()
