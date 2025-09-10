@@ -150,28 +150,9 @@ jobs:
         cat > release_notes.md << EOF
         # Auth0 AI Sample Artifacts - Latest
         
-        This release contains the latest version of sample applications for various frameworks and quickstarts.
+        This release contains the latest version of sample applications for various frameworks and quickstarts. See Assets below for downloadable zip files of each quickstart.
         
-        ## 📦 Available Samples
-        
-        EOF
-        
-        # List artifacts with better formatting
-        for zip_file in artifacts/*.zip; do
-          if [ -f "$zip_file" ]; then
-            ARTIFACT_NAME=$(basename "$zip_file" .zip)
-            SIZE=$(du -h "$zip_file" | cut -f1)
-            
-            CATEGORY=$(echo "$ARTIFACT_NAME" | cut -d'-' -f1)
-            SAMPLE=$(echo "$ARTIFACT_NAME" | cut -d'-' -f2- | sed 's/-sample$//')
-            
-            echo "- **${CATEGORY}/${SAMPLE}** → \`${ARTIFACT_NAME}.zip\` (${SIZE})" >> release_notes.md
-          fi
-        done
-        
-        cat >> release_notes.md << EOF
-        
-        For more information, visit [auth0.com/ai/docs](https://auth0.com/ai/docs)
+        For more information, visit [auth0.com/ai/docs](https://auth0.com/ai/docs).
         
         ---
         **Generated:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')
