@@ -74,34 +74,38 @@ jobs:
             
             # Create comprehensive zip with security exclusions
             zip -r "../../artifacts/${ZIP_NAME}.zip" . \
-              -x "*.git*" \
-              -x "*node_modules*" \
-              -x "*__pycache__*" \
+              -x "*.git/*" \
+              -x "*/.git/*" \
+              -x "*node_modules/*" \
+              -x "*/__pycache__/*" \
               -x "*.pyc" \
               -x "*.pyo" \
-              -x "*dist*" \
-              -x "*build*" \
-              -x "*.env*" \
-              -x "*venv*" \
-              -x "*.venv*" \
-              -x "*/.pytest_cache*" \
-              -x "*/.coverage*" \
-              -x "*/coverage*" \
-              -x "*.log*" \
-              -x "*/.DS_Store*" \
-              -x "*/Thumbs.db*" \
-              -x "*/.idea*" \
-              -x "*/.vscode*" \
-              -x "*/temp*" \
-              -x "*/tmp*" \
-              -x "*/*.tmp" \
-              -x "*/.cache*" \
-              -x "*/.*_cache*" \
-              -x "*/.next*" \
-              -x "*/target*" \
-              -x "*/.gradle*" \
-              -x "*/bin*" \
-              -x "*/obj*"
+              -x "*dist/*" \
+              -x "*build/*" \
+              -x ".env" \
+              -x "*/.env" \
+              -x "*.env.local" \
+              -x "*.env.production" \
+              -x "*.env.development" \
+              -x "*venv/*" \
+              -x "*.venv/*" \
+              -x "*/.pytest_cache/*" \
+              -x "*/.coverage" \
+              -x "*/coverage/*" \
+              -x "*.log" \
+              -x "*/.DS_Store" \
+              -x "*/Thumbs.db" \
+              -x "*/.idea/*" \
+              -x "*/.vscode/*" \
+              -x "*/temp/*" \
+              -x "*/tmp/*" \
+              -x "*.tmp" \
+              -x "*/.cache/*" \
+              -x "*/.next/*" \
+              -x "*/target/*" \
+              -x "*/.gradle/*" \
+              -x "*/bin/*" \
+              -x "*/obj/*"
               
             cd - > /dev/null
             
@@ -131,8 +135,8 @@ jobs:
           if [ -f "$zip_file" ]; then
             echo "Scanning: $(basename "$zip_file")"
             
-            # Check for sensitive files
-            SENSITIVE_FILES=$(unzip -l "$zip_file" 2>/dev/null | grep -E "\.(key|pem|p12|pfx|env|secret)$" || true)
+            # Check for actual sensitive files (not config examples)
+            SENSITIVE_FILES=$(unzip -l "$zip_file" 2>/dev/null | grep -E "\.(key|pem|p12|pfx)$|/\.env$|\.env\.(local|production|development)$|secret\." | grep -v -E "\.(example|sample|template)" || true)
             
             if [ ! -z "$SENSITIVE_FILES" ]; then
               echo "⚠️  Warning: Potential sensitive files in $(basename "$zip_file"):"
@@ -203,10 +207,7 @@ jobs:
         done
         
         echo ""
-        echo "🧪 This is a test release. When ready for production:"
-        echo "1. Change branch trigger to [main, master]"
-        echo "2. Change release tag back to 'latest'"
-        echo "3. Remove --prerelease flag"
+        echo "🧪 This is a test release. Official releases coming soon"
 
     # - name: Create 'latest' release
     #   env:
