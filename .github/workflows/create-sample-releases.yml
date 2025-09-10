@@ -1,0 +1,214 @@
+name: Build and Release Sample Artifacts
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - '*/*/README.md'
+      - '*/*/*.py'
+      - '*/*/*.js'
+      - '*/*/*.ts'
+      - '*/*/*.jsx'
+      - '*/*/*.tsx'
+      - '*/*/*.json'
+      - '*/*/*.md'
+      - '*/*/*.yml'
+      - '*/*/*.yaml'
+  workflow_dispatch:
+    inputs:
+      force_rebuild:
+        description: 'Force rebuild all artifacts'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  build-artifacts:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Create artifacts directory
+      run: mkdir -p artifacts
+      
+    - name: Validate repository structure
+      run: |
+        echo "🔍 Validating repository structure..."
+        
+        SAMPLE_DIRS=$(find . -maxdepth 2 -type d -path "./*/*" | grep -v ".git" | sort)
+        
+        if [ -z "$SAMPLE_DIRS" ]; then
+          echo "❌ No sample directories found!"
+          exit 1
+        fi
+        
+        echo "✅ Found sample directories:"
+        echo "$SAMPLE_DIRS"
+        
+    - name: Build quickstart packages
+      run: |
+        echo "📦 Building sample packages..."
+        
+        ARTIFACT_COUNT=0
+        
+        find . -maxdepth 2 -type d -path "./*/*" | grep -v ".git" | while read sample_dir; do
+          if [ -d "$sample_dir" ] && [ -f "$sample_dir/README.md" ]; then
+            CATEGORY=$(basename $(dirname "$sample_dir"))
+            SAMPLE=$(basename "$sample_dir")
+            ZIP_NAME="${CATEGORY}-${SAMPLE}-sample"
+            
+            echo "🔨 Building: $ZIP_NAME"
+            
+            cd "$sample_dir"
+            
+            # Create comprehensive zip with security exclusions
+            zip -r "../../artifacts/${ZIP_NAME}.zip" . \
+              -x "*.git*" \
+              -x "*node_modules*" \
+              -x "*__pycache__*" \
+              -x "*.pyc" \
+              -x "*.pyo" \
+              -x "*dist*" \
+              -x "*build*" \
+              -x "*.env*" \
+              -x "*venv*" \
+              -x "*.venv*" \
+              -x "*/.pytest_cache*" \
+              -x "*/.coverage*" \
+              -x "*/coverage*" \
+              -x "*.log*" \
+              -x "*/.DS_Store*" \
+              -x "*/Thumbs.db*" \
+              -x "*/.idea*" \
+              -x "*/.vscode*" \
+              -x "*/temp*" \
+              -x "*/tmp*" \
+              -x "*/*.tmp" \
+              -x "*/.cache*" \
+              -x "*/.*_cache*" \
+              -x "*/.next*" \
+              -x "*/target*" \
+              -x "*/.gradle*" \
+              -x "*/bin*" \
+              -x "*/obj*"
+              
+            cd - > /dev/null
+            
+            if [ -f "artifacts/${ZIP_NAME}.zip" ]; then
+              SIZE=$(du -h "artifacts/${ZIP_NAME}.zip" | cut -f1)
+              echo "✅ Created: ${ZIP_NAME}.zip ($SIZE)"
+              ARTIFACT_COUNT=$((ARTIFACT_COUNT + 1))
+            else
+              echo "❌ Failed to create: ${ZIP_NAME}.zip"
+            fi
+          fi
+        done
+        
+        echo "ARTIFACT_COUNT=$ARTIFACT_COUNT" >> $GITHUB_ENV
+        
+    - name: Security scan artifacts
+      run: |
+        echo "🔍 Performing security checks on artifacts..."
+        
+        for zip_file in artifacts/*.zip; do
+          if [ -f "$zip_file" ]; then
+            echo "Scanning: $(basename "$zip_file")"
+            
+            # Check for sensitive files
+            SENSITIVE_FILES=$(unzip -l "$zip_file" 2>/dev/null | grep -E "\.(key|pem|p12|pfx|env|secret)$" || true)
+            
+            if [ ! -z "$SENSITIVE_FILES" ]; then
+              echo "⚠️  Warning: Potential sensitive files in $(basename "$zip_file"):"
+              echo "$SENSITIVE_FILES"
+            else
+              echo "✅ No sensitive files detected"
+            fi
+          fi
+        done
+        
+    - name: Generate release notes
+      run: |
+        echo "📝 Generating release notes..."
+        
+        cat > release_notes.md << EOF
+        # Auth0 AI Sample Artifacts - Latest
+        
+        This release contains the latest version of sample applications for various frameworks and quickstarts.
+        
+        ## 📦 Available Samples
+        
+        EOF
+        
+        # List artifacts with better formatting
+        for zip_file in artifacts/*.zip; do
+          if [ -f "$zip_file" ]; then
+            ARTIFACT_NAME=$(basename "$zip_file" .zip)
+            SIZE=$(du -h "$zip_file" | cut -f1)
+            
+            CATEGORY=$(echo "$ARTIFACT_NAME" | cut -d'-' -f1)
+            SAMPLE=$(echo "$ARTIFACT_NAME" | cut -d'-' -f2- | sed 's/-sample$//')
+            
+            echo "- **${CATEGORY}/${SAMPLE}** → \`${ARTIFACT_NAME}.zip\` (${SIZE})" >> release_notes.md
+          fi
+        done
+        
+        cat >> release_notes.md << EOF
+        
+        For more information, visit [auth0.com/ai/docs](https://auth0.com/ai/docs)
+        
+        ---
+        **Generated:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+        EOF
+        
+    - name: Delete previous 'latest' release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        echo "🗑️  Cleaning up previous 'latest' release..."
+        
+        # Delete previous latest release (ignore errors if doesn't exist)
+        gh release delete latest --yes 2>/dev/null || echo "No previous 'latest' release found"
+        git push origin :refs/tags/latest 2>/dev/null || echo "No previous 'latest' tag found"
+        
+    - name: Create 'latest' release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        echo "🚀 Creating 'latest' release..."
+        
+        if [ "$ARTIFACT_COUNT" -eq 0 ]; then
+          echo "❌ No artifacts to release!"
+          exit 1
+        fi
+        
+        echo "📦 Releasing $ARTIFACT_COUNT artifacts"
+        
+        # Create the latest release that your download button expects
+        gh release create latest \
+          --title "Auth0 AI Samples - Latest" \
+          --notes-file release_notes.md \
+          --latest \
+          artifacts/*.zip
+          
+        echo "✅ Latest release created!"
+        echo "🔗 Your download URLs are now active:"
+        
+        for zip_file in artifacts/*.zip; do
+          if [ -f "$zip_file" ]; then
+            FILENAME=$(basename "$zip_file")
+            echo "   https://github.com/${{ github.repository }}/releases/latest/download/$FILENAME"
+          fi
+        done
