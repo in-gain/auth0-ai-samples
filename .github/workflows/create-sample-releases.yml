@@ -61,9 +61,7 @@ jobs:
     - name: Build quickstart packages
       run: |
         echo "📦 Building sample packages..."
-        
-        ARTIFACT_COUNT=0
-        
+
         find . -maxdepth 2 -type d -path "./*/*" | grep -v ".git" | while read sample_dir; do
           if [ -d "$sample_dir" ] && [ -f "$sample_dir/README.md" ]; then
             CATEGORY=$(basename $(dirname "$sample_dir"))
@@ -110,14 +108,20 @@ jobs:
             if [ -f "artifacts/${ZIP_NAME}.zip" ]; then
               SIZE=$(du -h "artifacts/${ZIP_NAME}.zip" | cut -f1)
               echo "✅ Created: ${ZIP_NAME}.zip ($SIZE)"
-              ARTIFACT_COUNT=$((ARTIFACT_COUNT + 1))
             else
               echo "❌ Failed to create: ${ZIP_NAME}.zip"
             fi
           fi
         done
         
+        # Count artifacts AFTER the loop completes
+        ARTIFACT_COUNT=$(ls artifacts/*.zip 2>/dev/null | wc -l)
         echo "ARTIFACT_COUNT=$ARTIFACT_COUNT" >> $GITHUB_ENV
+        echo "📊 Total artifacts built: $ARTIFACT_COUNT"
+        
+        # Debug: List what was actually created
+        echo "📦 Artifacts created:"
+        ls -la artifacts/ || echo "No artifacts directory or files found"
         
     - name: Security scan artifacts
       run: |
