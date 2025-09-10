@@ -2,7 +2,7 @@ name: Build and Release Sample Artifacts
 
 on:
   push:
-    branches: [main, master]
+    branches: [feat/zip-script]
     paths:
       - '*/*/README.md'
       - '*/*/*.py'
@@ -182,33 +182,73 @@ jobs:
         # Delete previous latest release (ignore errors if doesn't exist)
         gh release delete latest --yes 2>/dev/null || echo "No previous 'latest' release found"
         git push origin :refs/tags/latest 2>/dev/null || echo "No previous 'latest' tag found"
-        
-    - name: Create 'latest' release
+    
+    - name: Create test release (not latest)
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        echo "🚀 Creating 'latest' release..."
+        echo "🚀 Creating test release..."
         
         if [ "$ARTIFACT_COUNT" -eq 0 ]; then
           echo "❌ No artifacts to release!"
           exit 1
         fi
         
-        echo "📦 Releasing $ARTIFACT_COUNT artifacts"
+        # Create test release instead of "latest" to avoid conflicts
+        TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+        RELEASE_TAG="test-feat-zip-script-${TIMESTAMP}"
         
-        # Create the latest release that your download button expects
-        gh release create latest \
-          --title "Auth0 AI Samples - Latest" \
+        echo "📦 Creating test release: $RELEASE_TAG"
+        
+        # Create test release (not latest)
+        gh release create "$RELEASE_TAG" \
+          --title "Test Release - feat/zip-script" \
           --notes-file release_notes.md \
-          --latest \
+          --prerelease \
           artifacts/*.zip
           
-        echo "✅ Latest release created!"
-        echo "🔗 Your download URLs are now active:"
+        echo "✅ Test release created!"
+        echo "🔗 Test download URLs:"
         
         for zip_file in artifacts/*.zip; do
           if [ -f "$zip_file" ]; then
             FILENAME=$(basename "$zip_file")
-            echo "   https://github.com/${{ github.repository }}/releases/latest/download/$FILENAME"
+            echo "   https://github.com/${{ github.repository }}/releases/download/$RELEASE_TAG/$FILENAME"
           fi
         done
+        
+        echo ""
+        echo "🧪 This is a test release. When ready for production:"
+        echo "1. Change branch trigger to [main, master]"
+        echo "2. Change release tag back to 'latest'"
+        echo "3. Remove --prerelease flag"
+
+    # - name: Create 'latest' release
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   run: |
+    #     echo "🚀 Creating 'latest' release..."
+        
+    #     if [ "$ARTIFACT_COUNT" -eq 0 ]; then
+    #       echo "❌ No artifacts to release!"
+    #       exit 1
+    #     fi
+        
+    #     echo "📦 Releasing $ARTIFACT_COUNT artifacts"
+        
+    #     # Create the latest release that your download button expects
+    #     gh release create latest \
+    #       --title "Auth0 AI Samples - Latest" \
+    #       --notes-file release_notes.md \
+    #       --latest \
+    #       artifacts/*.zip
+          
+    #     echo "✅ Latest release created!"
+    #     echo "🔗 Your download URLs are now active:"
+        
+    #     for zip_file in artifacts/*.zip; do
+    #       if [ -f "$zip_file" ]; then
+    #         FILENAME=$(basename "$zip_file")
+    #         echo "   https://github.com/${{ github.repository }}/releases/latest/download/$FILENAME"
+    #       fi
+    #     done
