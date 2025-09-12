@@ -6,10 +6,8 @@ on:
     paths:
       - '*/*/release-config.yml'
       - '*/**'
-      - '!.github/**'             
-      - '!*.md'                   
+      - '!.github/**'                             
       - '!LICENSE'
-      - '!.gitignore'
       - '.github/workflows/create-sample-releases.yml'
   workflow_dispatch:
     inputs:
