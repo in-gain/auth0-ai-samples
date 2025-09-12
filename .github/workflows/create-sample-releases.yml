@@ -6,11 +6,11 @@ on:
     paths:
       - '*/*/release-config.yml'
       - '*/**'
-      - '.github/workflows/create-sample-releases.yml'
       - '!.github/**'             
       - '!*.md'                   
       - '!LICENSE'
       - '!.gitignore'
+      - '.github/workflows/create-sample-releases.yml'
   workflow_dispatch:
     inputs:
       force_rebuild:
