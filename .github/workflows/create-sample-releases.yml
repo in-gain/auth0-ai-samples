@@ -160,10 +160,6 @@ jobs:
           echo "📦 Building: $ZIP_FILENAME.zip"
           echo "🏷️  Category: $CATEGORY, Framework: $FRAMEWORK"
           
-          # Debug: Show hidden files before zipping
-          echo "📄 Hidden config files in directory:"
-          ls -la | grep "^\." | grep -E "(gitignore|env\.example|eslintrc|cursorignore)" || echo "No relevant hidden files found"
-          
           # Create zip with explicit exclusions
           zip -r "../../artifacts/${ZIP_FILENAME}.zip" . \
             --exclude=".git/*" \
@@ -232,10 +228,6 @@ jobs:
           if [ -f "artifacts/${ZIP_FILENAME}.zip" ]; then
             SIZE=$(du -h "artifacts/${ZIP_FILENAME}.zip" | cut -f1)
             echo "✅ Created: ${ZIP_FILENAME}.zip ($SIZE)"
-            
-            # Debug: Verify hidden files are included
-            echo "📦 Checking for hidden config files in zip:"
-            unzip -l "artifacts/${ZIP_FILENAME}.zip" | grep -E "(\.gitignore|\.env\.example|\.eslintrc|\.cursorignore)" | head -5 || echo "No hidden config files found in zip"
           else
             echo "❌ Failed to create: ${ZIP_FILENAME}.zip"
           fi

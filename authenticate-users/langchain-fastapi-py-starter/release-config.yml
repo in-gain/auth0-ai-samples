@@ -1,0 +1,3 @@
+category: "authenticate-users"
+framework: "langchain-fastapi-py-starter"
+included: true
