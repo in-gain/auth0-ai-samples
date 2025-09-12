@@ -15,7 +15,7 @@ Samples are organized as below:
 
 # Quickstart releases
 
-To support users' ability to download individual quickstarts from the [Auth for AI Agents docs site](https://auth0.com/ai/docs), this repository contains a Github Action to generate downloadable zip file artifacts of each quickstart. This action will run on any change within a quickstart folder, ensuring that the latest artifacts are always available for download.
+To support users' ability to download individual quickstarts from the [Auth for AI Agents docs site](https://auth0.com/ai/docs), this repository contains a Github Action to generate downloadable zip file artifacts of each quickstart. This action will run on any change within a quickstart folder on `main` branch, ensuring that the latest artifacts are always available for download.
 
 To **include** a new quickstart, add a `release-config.yml` file to the quickstart's base directory, for example:
 
@@ -40,4 +40,4 @@ exclude_patterns:
   - "node_modules/.cache/*"
 ```
 
-To **exclude** an existing quickstart, change the `release-config.yml` file to switch `included` to `false`.
+To **exclude** an existing quickstart, within the `release-config.yml` file, switch `included` to `false`.
