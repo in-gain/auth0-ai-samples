@@ -70,7 +70,3 @@ This example demonstrates how to combine [LangChain](https://js.langchain.com/do
 <p align="center">Auth0 is an easy to implement, adaptable authentication and authorization platform. To learn more checkout <a href="https://auth0.com/why-auth0">Why Auth0?</a></p>
 <p align="center">
 This project is licensed under the Apache 2.0 license. See the <a href="/LICENSE"> LICENSE</a> file for more info.</p>
-
-# Test 
-
-Testing to see if this is included in the release.
