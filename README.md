@@ -12,3 +12,19 @@ Samples are organized as below:
 - [**asynchronous-authorization**](https://auth0.com/ai/docs/async-authorization): Let your autonomous, async agents do work in the background. Use Async Auth to request approval when needed.
 
 [**Sign up for Auth0 AI**](https://auth0.com/signup?onboard_app=genai&ocid=7014z000001NyoxAAC-aPA4z0000008OZeGAM)
+
+# Quickstart releases
+
+To support users' ability to download individual quickstarts from the [Auth for AI Agents docs site](https://auth0.com/ai/docs), this repository contains a Github Action to generate downloadable zip file artifacts of each quickstart. This action will run on any change within a quickstart folder, ensuring that the latest artifacts are always available for download.
+
+To **include** a new quickstart, add a `release-config.yml` file to the quickstart's base directory, for example:
+
+```
+// authorization-for-rag/langchain-js/release-config.yml
+
+category: "authorization-for-rag"
+framework: "langchain-js"
+included: true
+```
+
+To **exclude** an existing quickstart, change the `release-config.yml` file to switch `included` to `false`.
