@@ -347,7 +347,7 @@ jobs:
         echo "📝 Generating release notes..."
         
         cat > release_notes.md << EOF
-        # Auth0 AI Sample Artifacts - Latest
+        # Quickstart Samples
         
         This release contains the latest version of sample applications for various frameworks and quickstarts. See Assets below for downloadable zip files of each quickstart.
         
@@ -367,6 +367,9 @@ jobs:
         # Delete previous latest release (ignore errors if doesn't exist)
         gh release delete latest --yes 2>/dev/null || echo "No previous 'latest' release found"
         git push origin :refs/tags/latest 2>/dev/null || echo "No previous 'latest' tag found"
+        
+        # Also clean up local tag
+        git tag -d latest 2>/dev/null || echo "No local 'latest' tag found"
 
     - name: Create 'latest' release
       if: env.SHOULD_BUILD == 'true'
