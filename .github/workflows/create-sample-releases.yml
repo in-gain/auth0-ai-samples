@@ -133,6 +133,35 @@ jobs:
           echo "SHOULD_BUILD=false" >> $GITHUB_ENV
         fi
 
+    - name: Download existing release assets (if any)
+      if: env.SHOULD_BUILD == 'true'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        echo "📥 Checking for existing 'latest' release assets..."
+        
+        # Check if latest release exists
+        if gh release view latest >/dev/null 2>&1; then
+          echo "✅ Found existing 'latest' release"
+          
+          # Download existing assets to preserve them
+          mkdir -p existing_assets
+          gh release download latest --dir existing_assets 2>/dev/null || echo "No assets to download"
+          
+          # Move existing assets to artifacts directory
+          for existing_zip in existing_assets/*.zip; do
+            if [ -f "$existing_zip" ]; then
+              FILENAME=$(basename "$existing_zip")
+              echo "📦 Preserving existing: $FILENAME"
+              cp "$existing_zip" "artifacts/"
+            fi
+          done
+          
+          rm -rf existing_assets
+        else
+          echo "ℹ️  No existing 'latest' release found"
+        fi
+
     - name: Build quickstart packages from configs
       if: env.SHOULD_BUILD == 'true'
       run: |
@@ -141,118 +170,154 @@ jobs:
         # Store the absolute path to artifacts directory
         ARTIFACTS_DIR="$(pwd)/artifacts"
         
+        # Get changed files to determine which directories to rebuild
+        CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "")
+        
+        # Check if workflow file changed (rebuild all if so)
+        REBUILD_ALL=false
+        if echo "$CHANGED_FILES" | grep -q "^\.github/workflows/create-sample-releases\.yml$"; then
+          echo "🔧 Workflow file changed - rebuilding ALL samples"
+          REBUILD_ALL=true
+        elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          echo "🔄 Manual trigger - rebuilding ALL samples"
+          REBUILD_ALL=true
+        elif [ "${{ github.event.inputs.force_rebuild }}" = "true" ]; then
+          echo "🔄 Force rebuild requested - rebuilding ALL samples"
+          REBUILD_ALL=true
+        elif [ -z "$CHANGED_FILES" ]; then
+          echo "📝 No changed files detected - rebuilding ALL samples"
+          REBUILD_ALL=true
+        fi
+        
         find . -name "release-config.yml" -not -path "./.git/*" | while read config_file; do
           sample_dir=$(dirname "$config_file")
+          clean_dir=$(echo "$sample_dir" | sed 's|^\./||')
           
-          echo "🔨 Processing: $config_file"
-          cd "$sample_dir"
+          # Check if this specific directory should be rebuilt
+          SHOULD_REBUILD=false
           
-          # Check if this sample should be included
-          INCLUDED=$(grep "^included:" release-config.yml | sed 's/included: *//' | tr -d ' ')
-          if [ "$INCLUDED" != "true" ]; then
-            echo "⏭️  Skipping (included: $INCLUDED)"
-            cd - > /dev/null
-            continue
-          fi
-          
-          # Extract configuration using basic shell parsing
-          CATEGORY=$(grep "^category:" release-config.yml | sed 's/category: *"//' | sed 's/"$//' | tr -d ' ')
-          FRAMEWORK=$(grep "^framework:" release-config.yml | sed 's/framework: *"//' | sed 's/"$//' | tr -d ' ')
-          
-          if [ -z "$CATEGORY" ] || [ -z "$FRAMEWORK" ]; then
-            echo "❌ Missing category or framework in $config_file"
-            cd - > /dev/null
-            continue
-          fi
-          
-          # Build zip filename from category and framework
-          ZIP_FILENAME="${CATEGORY}-${FRAMEWORK}-sample"
-          
-          echo "📦 Building: $ZIP_FILENAME.zip"
-          echo "🏷️  Category: $CATEGORY, Framework: $FRAMEWORK"
-          echo "📁 Current directory: $(pwd)"
-          echo "📁 Artifacts directory: $ARTIFACTS_DIR"
-          
-          # Create zip with absolute path to artifacts directory
-          zip -r "${ARTIFACTS_DIR}/${ZIP_FILENAME}.zip" . \
-            --exclude=".git/*" \
-            --exclude="node_modules/*" \
-            --exclude="__pycache__/*" \
-            --exclude="*.pyc" \
-            --exclude="*.pyo" \
-            --exclude="dist/*" \
-            --exclude="build/*" \
-            --exclude="venv/*" \
-            --exclude=".venv/*" \
-            --exclude=".pytest_cache/*" \
-            --exclude=".coverage" \
-            --exclude="coverage/*" \
-            --exclude="*.log" \
-            --exclude=".DS_Store" \
-            --exclude="Thumbs.db" \
-            --exclude=".idea/*" \
-            --exclude=".vscode/*" \
-            --exclude="temp/*" \
-            --exclude="tmp/*" \
-            --exclude="*.tmp" \
-            --exclude=".cache/*" \
-            --exclude=".next/*" \
-            --exclude="target/*" \
-            --exclude=".gradle/*" \
-            --exclude="bin/*" \
-            --exclude="obj/*" \
-            --exclude=".env" \
-            --exclude=".env.local" \
-            --exclude=".env.production" \
-            --exclude=".env.development"
-          
-          # Add custom exclusions from config if they exist
-          if grep -q "^exclude_patterns:" release-config.yml; then
-            echo "📋 Adding custom exclusions from config..."
-            
-            # Create a temporary zip with custom exclusions
-            TEMP_ZIP="${ARTIFACTS_DIR}/temp_${ZIP_FILENAME}.zip"
-            mv "${ARTIFACTS_DIR}/${ZIP_FILENAME}.zip" "$TEMP_ZIP"
-            
-            # Extract and re-zip with custom exclusions
-            mkdir -p temp_extract
-            cd temp_extract
-            unzip -q "$TEMP_ZIP"
-            
-            # Apply custom exclusions
-            while IFS= read -r line; do
-              if echo "$line" | grep -q "^  - "; then
-                pattern=$(echo "$line" | sed 's/^  - "//' | sed 's/"$//' | tr -d ' ')
-                if [ ! -z "$pattern" ]; then
-                  echo "   Excluding custom pattern: $pattern"
-                  find . -name "$pattern" -delete 2>/dev/null || true
-                fi
-              fi
-            done < <(grep -A 20 "^exclude_patterns:" ../release-config.yml)
-            
-            # Re-create zip with absolute path
-            zip -r "${ARTIFACTS_DIR}/${ZIP_FILENAME}.zip" .
-            cd ..
-            rm -rf temp_extract "$TEMP_ZIP"
-          fi
-          
-          cd - > /dev/null
-          
-          if [ -f "${ARTIFACTS_DIR}/${ZIP_FILENAME}.zip" ]; then
-            SIZE=$(du -h "${ARTIFACTS_DIR}/${ZIP_FILENAME}.zip" | cut -f1)
-            echo "✅ Created: ${ZIP_FILENAME}.zip ($SIZE)"
+          if [ "$REBUILD_ALL" = "true" ]; then
+            SHOULD_REBUILD=true
+            echo "🔨 Processing: $config_file (rebuild all)"
+          elif echo "$CHANGED_FILES" | grep -q "^$clean_dir/"; then
+            SHOULD_REBUILD=true
+            echo "🔨 Processing: $config_file (changes detected in $clean_dir)"
           else
-            echo "❌ Failed to create: ${ZIP_FILENAME}.zip"
+            echo "⏭️  Skipping: $config_file (no changes in $clean_dir)"
+            continue
+          fi
+          
+          # Only process if this directory should be rebuilt
+          if [ "$SHOULD_REBUILD" = "true" ]; then
+            cd "$sample_dir"
+            
+            # Check if this sample should be included
+            INCLUDED=$(grep "^included:" release-config.yml | sed 's/included: *//' | tr -d ' ')
+            if [ "$INCLUDED" != "true" ]; then
+              echo "⏭️  Skipping (included: $INCLUDED)"
+              cd - > /dev/null
+              continue
+            fi
+            
+            # Extract configuration using basic shell parsing
+            CATEGORY=$(grep "^category:" release-config.yml | sed 's/category: *"//' | sed 's/"$//' | tr -d ' ')
+            FRAMEWORK=$(grep "^framework:" release-config.yml | sed 's/framework: *"//' | sed 's/"$//' | tr -d ' ')
+            
+            if [ -z "$CATEGORY" ] || [ -z "$FRAMEWORK" ]; then
+              echo "❌ Missing category or framework in $config_file"
+              cd - > /dev/null
+              continue
+            fi
+            
+            # Build zip filename from category and framework
+            ZIP_FILENAME="${CATEGORY}-${FRAMEWORK}-sample"
+            
+            echo "📦 Building: $ZIP_FILENAME.zip"
+            echo "🏷️  Category: $CATEGORY, Framework: $FRAMEWORK"
+            echo "📁 Current directory: $(pwd)"
+            echo "📁 Artifacts directory: $ARTIFACTS_DIR"
+            
+            # Create zip with absolute path to artifacts directory (this will overwrite existing)
+            zip -r "${ARTIFACTS_DIR}/${ZIP_FILENAME}.zip" . \
+              --exclude=".git/*" \
+              --exclude="node_modules/*" \
+              --exclude="__pycache__/*" \
+              --exclude="*.pyc" \
+              --exclude="*.pyo" \
+              --exclude="dist/*" \
+              --exclude="build/*" \
+              --exclude="venv/*" \
+              --exclude=".venv/*" \
+              --exclude=".pytest_cache/*" \
+              --exclude=".coverage" \
+              --exclude="coverage/*" \
+              --exclude="*.log" \
+              --exclude=".DS_Store" \
+              --exclude="Thumbs.db" \
+              --exclude=".idea/*" \
+              --exclude=".vscode/*" \
+              --exclude="temp/*" \
+              --exclude="tmp/*" \
+              --exclude="*.tmp" \
+              --exclude=".cache/*" \
+              --exclude=".next/*" \
+              --exclude="target/*" \
+              --exclude=".gradle/*" \
+              --exclude="bin/*" \
+              --exclude="obj/*" \
+              --exclude=".env" \
+              --exclude=".env.local" \
+              --exclude=".env.production" \
+              --exclude=".env.development"
+            
+            # Add custom exclusions from config if they exist
+            if grep -q "^exclude_patterns:" release-config.yml; then
+              echo "📋 Adding custom exclusions from config..."
+              
+              # Create a temporary zip with custom exclusions
+              TEMP_ZIP="${ARTIFACTS_DIR}/temp_${ZIP_FILENAME}.zip"
+              mv "${ARTIFACTS_DIR}/${ZIP_FILENAME}.zip" "$TEMP_ZIP"
+              
+              # Extract and re-zip with custom exclusions
+              mkdir -p temp_extract
+              cd temp_extract
+              unzip -q "$TEMP_ZIP"
+              
+              # Apply custom exclusions
+              while IFS= read -r line; do
+                if echo "$line" | grep -q "^  - "; then
+                  pattern=$(echo "$line" | sed 's/^  - "//' | sed 's/"$//' | tr -d ' ')
+                  if [ ! -z "$pattern" ]; then
+                    echo "   Excluding custom pattern: $pattern"
+                    find . -name "$pattern" -delete 2>/dev/null || true
+                  fi
+                fi
+              done < <(grep -A 20 "^exclude_patterns:" ../release-config.yml)
+              
+              # Re-create zip with absolute path
+              zip -r "${ARTIFACTS_DIR}/${ZIP_FILENAME}.zip" .
+              cd ..
+              rm -rf temp_extract "$TEMP_ZIP"
+            fi
+            
+            cd - > /dev/null
+            
+            if [ -f "${ARTIFACTS_DIR}/${ZIP_FILENAME}.zip" ]; then
+              SIZE=$(du -h "${ARTIFACTS_DIR}/${ZIP_FILENAME}.zip" | cut -f1)
+              echo "✅ Created/Updated: ${ZIP_FILENAME}.zip ($SIZE)"
+            else
+              echo "❌ Failed to create: ${ZIP_FILENAME}.zip"
+            fi
           fi
         done
         
         # Count artifacts AFTER the loop completes
         ARTIFACT_COUNT=$(ls artifacts/*.zip 2>/dev/null | wc -l)
         echo "ARTIFACT_COUNT=$ARTIFACT_COUNT" >> $GITHUB_ENV
-        echo "📊 Total artifacts built: $ARTIFACT_COUNT"
+        echo "📊 Total artifacts for release: $ARTIFACT_COUNT"
         
-        # Debug: List what was actually created
-        echo "📦 Artifacts created:"
+        # Debug: List what will be included in the release
+        echo "📦 Artifacts for release:"
         ls -la artifacts/ || echo "No artifacts directory or files found"
         
     - name: Security scan artifacts
@@ -319,7 +384,7 @@ jobs:
         TIMESTAMP=$(date +%Y%m%d-%H%M%S)
         RELEASE_TAG="test-feat-zip-script-${TIMESTAMP}"
         
-        echo "📦 Creating test release: $RELEASE_TAG"
+        echo "📦 Creating test release: $RELEASE_TAG with $ARTIFACT_COUNT artifacts"
         
         # Create test release (not latest)
         gh release create "$RELEASE_TAG" \
