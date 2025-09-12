@@ -104,6 +104,13 @@ jobs:
         echo "📝 Changed files:"
         echo "$CHANGED_FILES"
         
+        # Check if the workflow file itself was changed
+        if echo "$CHANGED_FILES" | grep -q "^\.github/workflows/create-sample-releases\.yml$"; then
+          echo "🔧 Workflow file changed - forcing rebuild of all samples"
+          echo "SHOULD_BUILD=true" >> $GITHUB_ENV
+          exit 0
+        fi
+        
         SHOULD_BUILD=false
         
         for config_dir in $CONFIG_DIRS; do
