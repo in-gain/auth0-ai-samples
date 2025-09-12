@@ -130,6 +130,9 @@ jobs:
       run: |
         echo "📦 Building sample packages from configurations..."
         
+        # Store the absolute path to artifacts directory
+        ARTIFACTS_DIR="$(pwd)/artifacts"
+        
         find . -name "release-config.yml" -not -path "./.git/*" | while read config_file; do
           sample_dir=$(dirname "$config_file")
           
@@ -159,9 +162,11 @@ jobs:
           
           echo "📦 Building: $ZIP_FILENAME.zip"
           echo "🏷️  Category: $CATEGORY, Framework: $FRAMEWORK"
+          echo "📁 Current directory: $(pwd)"
+          echo "📁 Artifacts directory: $ARTIFACTS_DIR"
           
-          # Create zip with explicit exclusions
-          zip -r "../../artifacts/${ZIP_FILENAME}.zip" . \
+          # Create zip with absolute path to artifacts directory
+          zip -r "${ARTIFACTS_DIR}/${ZIP_FILENAME}.zip" . \
             --exclude=".git/*" \
             --exclude="node_modules/*" \
             --exclude="__pycache__/*" \
@@ -198,8 +203,8 @@ jobs:
             echo "📋 Adding custom exclusions from config..."
             
             # Create a temporary zip with custom exclusions
-            TEMP_ZIP="../../artifacts/temp_${ZIP_FILENAME}.zip"
-            mv "../../artifacts/${ZIP_FILENAME}.zip" "$TEMP_ZIP"
+            TEMP_ZIP="${ARTIFACTS_DIR}/temp_${ZIP_FILENAME}.zip"
+            mv "${ARTIFACTS_DIR}/${ZIP_FILENAME}.zip" "$TEMP_ZIP"
             
             # Extract and re-zip with custom exclusions
             mkdir -p temp_extract
@@ -217,16 +222,16 @@ jobs:
               fi
             done < <(grep -A 20 "^exclude_patterns:" ../release-config.yml)
             
-            # Re-create zip
-            zip -r "../../../artifacts/${ZIP_FILENAME}.zip" .
+            # Re-create zip with absolute path
+            zip -r "${ARTIFACTS_DIR}/${ZIP_FILENAME}.zip" .
             cd ..
             rm -rf temp_extract "$TEMP_ZIP"
           fi
           
           cd - > /dev/null
           
-          if [ -f "artifacts/${ZIP_FILENAME}.zip" ]; then
-            SIZE=$(du -h "artifacts/${ZIP_FILENAME}.zip" | cut -f1)
+          if [ -f "${ARTIFACTS_DIR}/${ZIP_FILENAME}.zip" ]; then
+            SIZE=$(du -h "${ARTIFACTS_DIR}/${ZIP_FILENAME}.zip" | cut -f1)
             echo "✅ Created: ${ZIP_FILENAME}.zip ($SIZE)"
           else
             echo "❌ Failed to create: ${ZIP_FILENAME}.zip"
