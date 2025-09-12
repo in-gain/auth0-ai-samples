@@ -2,7 +2,7 @@ name: Build and Release Sample Artifacts
 
 on:
   push:
-    branches: [feat/zip-script] # change to 'main' for production
+    branches: [main]
     paths:
       - '*/*/release-config.yml'
       - '*/**'
