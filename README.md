@@ -27,4 +27,17 @@ framework: "langchain-js"
 included: true
 ```
 
+You can *optionally* add an `exclude_patterns` to the `release-config.yml` if you want to exclude any particular files from the release. Note that the release script already excludes and scans for common sensitive files. Example:
+
+```
+// release-config.yml
+
+exclude_patterns:
+  - "*.tmp"
+  - "debug.log"
+  - "test-data/*"
+  - ".env.test"
+  - "node_modules/.cache/*"
+```
+
 To **exclude** an existing quickstart, change the `release-config.yml` file to switch `included` to `false`.
