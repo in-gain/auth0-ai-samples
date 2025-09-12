@@ -5,7 +5,8 @@ on:
     branches: [feat/zip-script] # change to 'main' for production
     paths:
       - '*/*/release-config.yml'
-      - '*/**'                    
+      - '*/**'
+      - '.github/workflows/create-sample-releases.yml'
       - '!.github/**'             
       - '!*.md'                   
       - '!LICENSE'
