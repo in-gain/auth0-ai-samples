@@ -1,3 +1,3 @@
 category: "asynchronous-authorization"
 framework: "vercel-ai-node-js"
-included: true
+included: false # fix this, just using for testing

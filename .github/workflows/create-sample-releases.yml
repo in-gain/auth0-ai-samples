@@ -160,37 +160,82 @@ jobs:
           echo "📦 Building: $ZIP_FILENAME.zip"
           echo "🏷️  Category: $CATEGORY, Framework: $FRAMEWORK"
           
-          # Start with default exclusions
-          EXCLUDE_ARGS="-x .git/* -x node_modules/* -x __pycache__/* -x *.pyc -x *.pyo"
-          EXCLUDE_ARGS="$EXCLUDE_ARGS -x dist/* -x build/* -x venv/* -x .venv/*"
-          EXCLUDE_ARGS="$EXCLUDE_ARGS -x .pytest_cache/* -x .coverage -x coverage/*"
-          EXCLUDE_ARGS="$EXCLUDE_ARGS -x *.log -x .DS_Store -x Thumbs.db -x .idea/* -x .vscode/*"
-          EXCLUDE_ARGS="$EXCLUDE_ARGS -x temp/* -x tmp/* -x *.tmp -x .cache/* -x .next/*"
-          EXCLUDE_ARGS="$EXCLUDE_ARGS -x target/* -x .gradle/* -x bin/* -x obj/*"
-          EXCLUDE_ARGS="$EXCLUDE_ARGS -x .env -x .env.local -x .env.production -x .env.development"
+          # Debug: Show hidden files before zipping
+          echo "📄 Hidden config files in directory:"
+          ls -la | grep "^\." | grep -E "(gitignore|env\.example|eslintrc|cursorignore)" || echo "No relevant hidden files found"
           
-          # Add custom exclusions from config
+          # Create zip with explicit exclusions
+          zip -r "../../artifacts/${ZIP_FILENAME}.zip" . \
+            --exclude=".git/*" \
+            --exclude="node_modules/*" \
+            --exclude="__pycache__/*" \
+            --exclude="*.pyc" \
+            --exclude="*.pyo" \
+            --exclude="dist/*" \
+            --exclude="build/*" \
+            --exclude="venv/*" \
+            --exclude=".venv/*" \
+            --exclude=".pytest_cache/*" \
+            --exclude=".coverage" \
+            --exclude="coverage/*" \
+            --exclude="*.log" \
+            --exclude=".DS_Store" \
+            --exclude="Thumbs.db" \
+            --exclude=".idea/*" \
+            --exclude=".vscode/*" \
+            --exclude="temp/*" \
+            --exclude="tmp/*" \
+            --exclude="*.tmp" \
+            --exclude=".cache/*" \
+            --exclude=".next/*" \
+            --exclude="target/*" \
+            --exclude=".gradle/*" \
+            --exclude="bin/*" \
+            --exclude="obj/*" \
+            --exclude=".env" \
+            --exclude=".env.local" \
+            --exclude=".env.production" \
+            --exclude=".env.development"
+          
+          # Add custom exclusions from config if they exist
           if grep -q "^exclude_patterns:" release-config.yml; then
-            echo "📋 Adding custom exclusions from config"
+            echo "📋 Adding custom exclusions from config..."
+            
+            # Create a temporary zip with custom exclusions
+            TEMP_ZIP="../../artifacts/temp_${ZIP_FILENAME}.zip"
+            mv "../../artifacts/${ZIP_FILENAME}.zip" "$TEMP_ZIP"
+            
+            # Extract and re-zip with custom exclusions
+            mkdir -p temp_extract
+            cd temp_extract
+            unzip -q "$TEMP_ZIP"
+            
+            # Apply custom exclusions
             while IFS= read -r line; do
               if echo "$line" | grep -q "^  - "; then
                 pattern=$(echo "$line" | sed 's/^  - "//' | sed 's/"$//' | tr -d ' ')
                 if [ ! -z "$pattern" ]; then
-                  EXCLUDE_ARGS="$EXCLUDE_ARGS -x $pattern"
-                  echo "   Excluding: $pattern"
+                  echo "   Excluding custom pattern: $pattern"
+                  find . -name "$pattern" -delete 2>/dev/null || true
                 fi
               fi
-            done < <(grep -A 20 "^exclude_patterns:" release-config.yml)
+            done < <(grep -A 20 "^exclude_patterns:" ../release-config.yml)
+            
+            # Re-create zip
+            zip -r "../../../artifacts/${ZIP_FILENAME}.zip" .
+            cd ..
+            rm -rf temp_extract "$TEMP_ZIP"
           fi
-          
-          # Create the zip
-          eval "zip -r \"../../artifacts/${ZIP_FILENAME}.zip\" . $EXCLUDE_ARGS"
           
           cd - > /dev/null
           
           if [ -f "artifacts/${ZIP_FILENAME}.zip" ]; then
             SIZE=$(du -h "artifacts/${ZIP_FILENAME}.zip" | cut -f1)
             echo "✅ Created: ${ZIP_FILENAME}.zip ($SIZE)"
+            
+            # Debug: Verify hidden files are included
+            echo "📦 Checking for hidden config files in zip:"
+            unzip -l "artifacts/${ZIP_FILENAME}.zip" | grep -E "(\.gitignore|\.env\.example|\.eslintrc|\.cursorignore)" | head -5 || echo "No hidden config files found in zip"
           else
             echo "❌ Failed to create: ${ZIP_FILENAME}.zip"
           fi
@@ -227,6 +272,7 @@ jobs:
         done
         
     - name: Generate release notes
+      if: env.SHOULD_BUILD == 'true'
       run: |
         echo "📝 Generating release notes..."
         
