@@ -12,3 +12,32 @@ Samples are organized as below:
 - [**asynchronous-authorization**](https://auth0.com/ai/docs/async-authorization): Let your autonomous, async agents do work in the background. Use Async Auth to request approval when needed.
 
 [**Sign up for Auth0 AI**](https://auth0.com/signup?onboard_app=genai&ocid=7014z000001NyoxAAC-aPA4z0000008OZeGAM)
+
+# Quickstart releases
+
+To support users' ability to download individual quickstarts from the [Auth for AI Agents docs site](https://auth0.com/ai/docs), this repository contains a Github Action to generate downloadable zip file artifacts of each quickstart. This action will run on any change within a quickstart folder on `main` branch, ensuring that the latest artifacts are always available for download.
+
+To **include** a new quickstart, add a `release-config.yml` file to the quickstart's base directory, for example:
+
+```
+// authorization-for-rag/langchain-js/release-config.yml
+
+category: "authorization-for-rag"
+framework: "langchain-js"
+included: true
+```
+
+You can *optionally* add an `exclude_patterns` to the `release-config.yml` if you want to exclude any particular files from the release. Note that the release script already excludes and scans for common sensitive files. Example:
+
+```
+// release-config.yml
+
+exclude_patterns:
+  - "*.tmp"
+  - "debug.log"
+  - "test-data/*"
+  - ".env.test"
+  - "node_modules/.cache/*"
+```
+
+To **exclude** an existing quickstart, within the `release-config.yml` file, switch `included` to `false`.
