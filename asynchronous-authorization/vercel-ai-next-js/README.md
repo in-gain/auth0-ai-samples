@@ -1,98 +1,54 @@
-## Assistant0: An AI Personal Assistant Secured with Auth0
+# 非同期承認フロー: Vercel AI SDK + Next.js
 
-Assistant0 an AI personal assistant that consolidates your digital life by dynamically accessing multiple tools to help you stay organized and efficient. Here’s some of the features that can be implemented:
+このサンプルは、Auth0 のトークン ボールトと Vercel AI SDK を組み合わせて、ユーザーからの追加承認が必要なタスクを安全に実行する方法を示します。AI エージェントはバックグラウンドで処理を進め、必要なタイミングで Auth0 Guardian によるプッシュ通知を送信します。
 
-1. **Gmail Integration:** The assistant can scan your inbox to generate concise summaries. It can highlight urgent emails, categorizes conversations by importance, and even suggests drafts for quick replies.
-2. **Calendar Management:** By interfacing with your calendar, it can remind you of upcoming meetings, check for scheduling conflicts, and even propose the best time slots for new appointments based on your availability.
-3. **User Information Retrieval:** The assistant can retrieve information about the user from their authentication profile, including their name, email, and other relevant details.
-4. **Online Shopping with Human-in-the-Loop Authorizations:** The assistant can make purchases on your behalf (using a fake API for demo purposes), with the ability to ask for human confirmation before finalizing transactions.
-5. **Document Upload and Retrieval:** The assistant can upload PDF and text documents to the database and retrieve them for context during chat. The docs can be shared with other users.
+## セットアップ手順
 
-With tool-calling capabilities, the possibilities are endless. In this conceptual scenario, the AI agent embodies a digital personal secretary—one that not only processes information but also proactively collates data from connected services to provide comprehensive task management. This level of integration not only enhances efficiency but also ushers in a new era of intelligent automation, where digital assistants serve as reliable, all-in-one solutions that tailor themselves to your personal and professional needs.
-
-## 🚀 Getting Started
-
-First, clone this repo and download it locally.
+### 1. リポジトリのクローン
 
 ```bash
 git clone https://github.com/auth0-samples/auth0-ai-samples.git
 cd auth0-ai-samples/asynchronous-authorization/vercel-ai-next-js
 ```
 
-Next, you'll need to set up environment variables in your repo's `.env.local` file. Copy the `.env.example` file to `.env.local`.
+### 2. 環境変数の準備
 
-- To start with the examples, you'll just need to add your OpenAI API key and Auth0 credentials for the Web app and Machine to Machine App.
-  - You can setup a new Auth0 tenant with an Auth0 Web App and Token Vault following the Prerequisites instructions [here](https://auth0.com/ai/docs/call-others-apis-on-users-behalf).
-  - Click on the tenant name on the [Quickstarts](https://auth0.com/ai/docs/call-your-apis-on-users-behalf), Go to the app settings (**Applications** -> **Applications** -> **WebApp Quickstart Client** -> **Settings** -> **Advanced Settings** -> **Grant Types**) and enable the CIBA grant and save.
+`.env.example` を `.env.local` にコピーし、以下の値を設定します。`.env` が存在する場合は `.env` → `.env.local` の順に読み込まれ、`.env.local` の値で上書きされます。
 
-Next, install the required packages using your preferred package manager and initialize the database.
-
-```bash
-bun install # or npm install
-# Optional: start the postgres database
-docker compose up -d
-# Optional: create the database schema
-bun db:migrate # or npm run db:migrate
-```
-
-Now you're ready to run the development server:
+- Auth0 ドメイン、CIBA 用アプリケーションのクライアント情報
+- サンプル API (`Sample Stock API`) のオーディエンスやエンドポイント
+- Amazon Bedrock を利用する場合の AWS 資格情報とモデル ID
 
 ```bash
-bun dev # or npm run dev
+AWS_ACCESS_KEY_ID=xxxxxxxx
+AWS_SECRET_ACCESS_KEY=xxxxxxxx
+AWS_REGION=us-east-1
+BEDROCK_MODEL_ID=anthropic.claude-3-haiku-20240307-v1:0
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result! Ask the bot something and you'll see a streamed response:
+既定では OpenAI を利用する `OPENAI_API_KEY` を参照します。Bedrock の Claude モデルに切り替える場合は、Vercel AI SDK のモデル指定を Bedrock 用に構成してください。
 
-![A streaming conversation between the user and the AI](./public/images/home-page.png)
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-Backend logic lives in `app/api/chat/route.ts`. From here, you can change the prompt and model, or add other modules and logic.
-
-### Security Challenges with Tool Calling AI Agents
-
-Building such an assistant is not too difficult. Thanks to frameworks like [LangChain](https://www.langchain.com/), [LlamaIndex](https://www.llamaindex.ai/), and [Vercel AI](https://vercel.com/ai), you can get started quickly. The difficult part is doing it securely so that you can protect the user's data and credentials.
-
-Many current solutions involve storing credentials and secrets in the AI agent application’s environment or letting the agent impersonate the user. This is not a good idea, as it can lead to security vulnerabilities and excessive scope and access for the AI agent.
-
-### Tool Calling with the Help of Auth0
-
-This is where Auth0 comes to the rescue. As the leading identity provider (IdP) for modern applications, our upcoming product, [Auth for GenAI](https://a0.to/ai-content), provides standardized ways built on top of OAuth and OpenID Connect to call APIs of tools on behalf of the end user from your AI agent.
-
-Auth0's [Token Vault](https://auth0.com/docs/secure/tokens/token-vault) feature helps broker a secure and controlled handshake between the AI agents and the services you want the agent to interact with on your behalf – in the form of scoped access tokens. This way, the agent and LLM do not have access to the credentials and can only call the tools with the permissions you have defined in Auth0. This also means your AI agent only needs to talk to Auth0 for authentication and not the tools directly, making integrations easier.
-
-![Tool calling with Federated API token exchange](https://images.ctfassets.net/23aumh6u8s0i/1gY1jvDgZHSfRloc4qVumu/d44bb7102c1e858e5ac64dea324478fe/tool-calling-with-federated-api-token-exchange.jpg)
-
-## Learn more
-
-- [Tool Calling in AI Agents: Empowering Intelligent Automation Securely](https://auth0.com/blog/genai-tool-calling-intro/)
-- [Build an AI Assistant with LangGraph, Vercel, and Next.js: Use Gmail as a Tool Securely](https://auth0.com/blog/genai-tool-calling-build-agent-that-calls-gmail-securely-with-langgraph-vercelai-nextjs/)
-- [Call Other's APIs on User's Behalf](https://auth0.com/ai/docs/call-others-apis-on-users-behalf)
-
-## About the template
-
-This template scaffolds an Auth0 + LangChain.js + Next.js starter app. It mainly uses the following libraries:
-
-- Vercel's [AI SDK](https://github.com/vercel-labs/ai) to handle the AI agent.
-- The [Auth0 AI SDK](https://github.com/auth0-lab/auth0-ai-js) and [Auth0 Next.js SDK](https://github.com/auth0/nextjs-auth0) to secure the application and call third-party APIs.
-
-It's Vercel's free-tier friendly too! Check out the [bundle size stats below](#-bundle-size).
-
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/oktadev/auth0-assistant0)
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Foktadev%2Fauth0-assistant0)
-
-## 📦 Bundle size
-
-This package has [@next/bundle-analyzer](https://www.npmjs.com/package/@next/bundle-analyzer) set up by default - you can explore the bundle size interactively by running:
+### 3. 依存関係のインストール
 
 ```bash
-$ ANALYZE=true bun run build
+bun install
 ```
 
-## License
+または `npm install` でも実行できます。
 
-This project is open-sourced under the MIT License - see the [LICENSE](LICENSE) file for details.
+### 4. 開発サーバーの起動
 
-## Author
+```bash
+bun dev
+```
 
-This project is built by [Deepu K Sasidharan](https://github.com/deepu105).
+または `npm run dev` を使用してください。サーバーは既定で `http://localhost:3000` をリッスンします。
+
+## 補足
+
+- `drizzle.config.ts` や FGA クライアント初期化コードは `.env.local` を優先して読み込みます。共有用の `.env` とローカルの秘密情報を分けられます。
+- Auth0 Guardian のプッシュ通知を受け取るため、テストユーザーを MFA に登録しておいてください。
+
+## ライセンス
+
+Apache-2.0 ライセンスです。詳細は [LICENSE](LICENSE) を参照してください。
