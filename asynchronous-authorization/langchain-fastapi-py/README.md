@@ -1,60 +1,66 @@
-# Assistant0: An AI Personal Assistant Secured with Auth0 - LangGraph Python/FastAPI Version
+# Assistant0: Auth0 で保護された AI パーソナルアシスタント - LangGraph Python/FastAPI 版
 
-Assistant0 an AI personal assistant that consolidates your digital life by dynamically accessing multiple tools to help you stay organized and efficient.
+Assistant0 は、複数のツールを動的に呼び出して日々のタスクを支援する AI パーソナルアシスタントのサンプルです。このプロジェクトでは、Auth0 による認可と非同期承認フローを組み合わせて、バックグラウンドで動作する AI エージェントを安全に運用する方法を示します。
 
-## About the template
+## テンプレートの特徴
 
-This template scaffolds an Auth0 + LangChain.js + Next.js starter app. It mainly uses the following libraries:
+- [LangGraph](https://langchain-ai.github.io/langgraph/) と [LangChain Python フレームワーク](https://python.langchain.com/docs/introduction/) を利用したエージェント指向のワークフロー。
+- [Auth0 AI SDK for Python](https://github.com/auth0-lab/auth0-ai-python) と [Auth0 FastAPI SDK](https://github.com/auth0/auth0-fastapi) による認証・外部 API 呼び出しの保護。
+- [Auth0 FGA](https://auth0.com/fine-grained-authorization) によるツールおよび RAG パイプラインの権限制御。
+- Amazon Bedrock を利用した Claude モデルの実行例。OpenAI など他の LLM を利用する場合は `.env.local` でモデル設定を差し替えられます。
 
-- [LangChain's Python framework](https://python.langchain.com/docs/introduction/) and [LangGraph.js](https://langchain-ai.github.io/langgraph/) for building agentic workflows.
-- The [Auth0 AI SDK](https://github.com/auth0-lab/auth0-ai-python) and [Auth0 FastAPI SDK](https://github.com/auth0/auth0-fastapi) to secure the application and call third-party APIs.
-- [Auth0 FGA](https://auth0.com/fine-grained-authorization) to define fine-grained access control policies for your tools and RAG pipelines.
+## 🚀 セットアップ手順
 
-## 🚀 Getting Started
-
-First, clone this repo and download it locally.
+まずリポジトリをクローンしてください。
 
 ```bash
 git clone https://github.com/auth0-samples/auth0-ai-samples.git
-cd auth0-ai-samples/authenticate-users/langchain-fastapi-py-starter
+cd auth0-ai-samples/asynchronous-authorization/langchain-fastapi-py
 ```
 
-The project is divided into two parts:
+このテンプレートは `backend/` と `frontend/` に分かれています。
 
-- `backend/` contains the backend code for the Web app and API written in Python using FastAPI.
-- `frontend/` contains the frontend code for the Web app written in React as a Vite SPA.
+- `backend/`: FastAPI で実装された API サーバー
+- `frontend/`: React (Vite) で実装されたシングルページアプリケーション
 
-### Setup the backend
+### Backend のセットアップ
 
 ```bash
 cd backend
 ```
 
-Next, you'll need to set up environment variables in your repo's `.env` file. Copy the `.env.example` file to `.env`.
+1. `.env.example` を `.env.local` にコピーし、環境変数を設定します。アプリは `.env` → `.env.local` の順で読み込み、`.env.local` の値で上書きします。
 
-To start with the basic examples, you'll just need to add your OpenAI API key and Auth0 credentials.
+   - Auth0 テナント、CIBA 用アプリケーション、Token Vault の設定値
+   - Auth0 FGA ストア ID、クライアント ID／シークレット、API URL
+   - Amazon Bedrock を利用する場合は、以下の変数も追加してください。
 
-- To start with the examples, you'll just need to add your OpenAI API key and Auth0 credentials for the Web app.
-  - You can setup a new Auth0 tenant with an Auth0 Web App and Token Vault following the Prerequisites instructions [here](https://auth0.com/ai/docs/call-others-apis-on-users-behalf).
-  - An Auth0 FGA account, you can create one [here](https://dashboard.fga.dev). Add the FGA store ID, client ID, client secret, and API URL to the `.env` file.
+     ```bash
+     AWS_ACCESS_KEY_ID=xxxxxxxx
+     AWS_SECRET_ACCESS_KEY=xxxxxxxx
+     AWS_REGION=us-east-1
+     BEDROCK_MODEL_ID=anthropic.claude-3-haiku-20240307-v1:0
+     ```
 
-Next, install the required packages using your preferred package manager, e.g. uv:
+     既定では OpenAI 用の `OPENAI_API_KEY` を読み込みます。Bedrock を使用する場合は、`.env.local` で `OPENAI_API_KEY` を削除するか、アプリケーションの LLM 設定を Bedrock 用に更新してください。
 
-```bash
-uv sync --frozen
-```
+2. 依存関係をインストールします (例: [uv](https://github.com/astral-sh/uv) を使用)。
 
-Now you're ready to run the development server:
+   ```bash
+   uv sync --frozen
+   ```
 
-```bash
-source .venv/bin/activate
-uv pip install auth0_fastapi # install the auth0 fastapi package
-fastapi dev app/main.py
-```
+3. 開発サーバーを起動します。
 
-### Start the LangGraph server
+   ```bash
+   source .venv/bin/activate
+   uv pip install auth0_fastapi
+   fastapi dev app/main.py
+   ```
 
-Next, you'll need to start an in-memory LangGraph server on port 54367, to do so open a new terminal and run:
+### LangGraph サーバーの起動
+
+別ターミナルでインメモリ版 LangGraph サーバーを起動します。
 
 ```bash
 source .venv/bin/activate
@@ -62,11 +68,9 @@ uv pip install -U langgraph-api
 langgraph dev --port 54367 --allow-blocking
 ```
 
-### Start the frontend server
+### Frontend のセットアップ
 
-Rename `.env.example` file to `.env` in the `frontend` directory.
-
-Finally, you can start the frontend server in another terminal:
+`frontend` ディレクトリでも `.env.example` を `.env.local` にコピーし、Auth0 設定や API エンドポイントを入力します。
 
 ```bash
 cd frontend
@@ -74,16 +78,16 @@ npm install
 npm run dev
 ```
 
-This will start a React vite server on port 5173.
+デフォルトではポート 5173 で Vite サーバーが立ち上がります。
 
 ![A streaming conversation between the user and the AI](./public/images/home-page.png)
 
-Agent configuration lives in `backend/app/agents/assistant0.ts`. From here, you can change the prompt and model, or add other tools and logic.
+エージェント設定は `backend/app/agents/assistant0.py` にあります。ここでプロンプトや利用するモデル (Bedrock Claude や OpenAI など) を変更できます。
 
-## License
+## ライセンス
 
-This project is open-sourced under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT ライセンスです。詳細は [LICENSE](LICENSE) を参照してください。
 
-## Author
+## 作者
 
-This project is built by [Juan Cruz Martinez](https://github.com/jcmartinezdev).
+[Juan Cruz Martinez](https://github.com/jcmartinezdev) によって作成されました。

@@ -1,23 +1,23 @@
-# [Asynchronous Authorization](https://auth0.com/ai/docs/async-authorization)
+# 非同期承認 (Asynchronous Authorization)
 
-Let your autonomous, async agents do work in the background. Use Async Auth to request approval when needed.
+[Auth0 の非同期承認](https://auth0.com/ai/docs/async-authorization) は、バックグラウンドで動作するエージェントがユーザーの代わりに処理を進めつつ、重要なアクションの前に人間の承認を取得できる仕組みです。このディレクトリには、Auth0 と各種 AI フレームワークを組み合わせたサンプルが含まれています。
 
-### Examples
+## サンプル一覧
 
-Explore the following examples demonstrating the integration of **Auth0** with different frameworks for async user confirmation:
+以下のサンプルでは、Auth0 の Token Vault と Amazon Bedrock (Claude) を中心に構成したワークフローを紹介しています。`.env.local` に独自のモデル設定を追加すれば、OpenAI など他のプロバイダーにも切り替えられます。
 
-- **Vercel AI SDK + Node.js (JavaScript):**  
-   A simple Node.js application that demonstrates how to use Vercel AI SDK and Auth0 to get user confirmation for async tasks.
-   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/async-user-confirmation/vercel-ai-node-js)
+- **Vercel AI SDK + Node.js (JavaScript)**  
+  CLI で実行する最小構成の例です。`npm start` で非同期承認フローを確認できます。  
+  [リポジトリを開く](https://github.com/auth0-samples/auth0-ai-samples/tree/main/asynchronous-authorization/vercel-ai-node-js)
 
-- **Vercel AI SDK + Next.js (JavaScript):**  
-   A Next.js application that demonstrates how to use Vercel AI SDK and Auth0 to get user confirmation for async tasks.
-   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/async-user-confirmation/vercel-ai-next-js)
+- **Vercel AI SDK + Next.js (JavaScript)**  
+  Web UI を備えた Next.js アプリケーションです。  
+  [リポジトリを開く](https://github.com/auth0-samples/auth0-ai-samples/tree/main/asynchronous-authorization/vercel-ai-next-js)
 
-- **Langchain + FastAPI (Python):**  
-   A FastAPI application that demonstrates how to use Langchain and Auth0 to get user confirmation for async tasks.
-   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/async-user-confirmation/langchain-fastapi-py)
+- **LangChain + FastAPI (Python)**  
+  LangGraph を用いた Python/FastAPI バックエンドと React フロントエンドの構成です。  
+  [リポジトリを開く](https://github.com/auth0-samples/auth0-ai-samples/tree/main/asynchronous-authorization/langchain-fastapi-py)
 
-- **Langchain + Next.js (JavaScript):**  
-   A Next.js application that demonstrates how to use Langchain and Auth0 to get user confirmation for async tasks.
-   [View Example](https://github.com/auth0-samples/auth0-ai-samples/tree/main/async-user-confirmation/langchain-next-js)
+- **LangChain + Next.js (JavaScript)**  
+  LangChain.js と Next.js を組み合わせたフルスタックのサンプルです。  
+  [リポジトリを開く](https://github.com/auth0-samples/auth0-ai-samples/tree/main/asynchronous-authorization/langchain-next-js)

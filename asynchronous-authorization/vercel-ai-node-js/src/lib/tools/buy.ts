@@ -1,4 +1,16 @@
-import "dotenv/config";
+import { config } from "dotenv";
+import fs from "node:fs";
+import path from "node:path";
+
+const envPath = path.resolve(process.cwd(), ".env");
+if (fs.existsSync(envPath)) {
+  config({ path: envPath });
+}
+
+const envLocalPath = path.resolve(process.cwd(), ".env.local");
+if (fs.existsSync(envLocalPath)) {
+  config({ path: envLocalPath, override: true });
+}
 
 import { tool } from "ai";
 import { z } from "zod";

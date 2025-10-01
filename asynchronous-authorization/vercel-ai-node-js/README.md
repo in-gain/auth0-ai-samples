@@ -1,32 +1,22 @@
-# [Asynchronous Authorization with Vercel AI SDK](https://auth0.com/ai/docs/async-authorization)
+# 非同期承認フロー: Vercel AI SDK + Node.js
 
-[Quickstart](https://auth0.com/ai/docs/async-authorization)
+この CLI サンプルでは、Auth0 の非同期承認 (CIBA) を利用して、AI エージェントがバックグラウンドでタスクを進めつつ必要な時にユーザー承認を取得する方法を示します。
 
-## Getting Started
+## 事前準備
 
-### Prerequisites
+- **Amazon Bedrock** の利用権限 (Claude 3 系モデルを推奨)。
+- **Auth0** テナントと以下の設定:
+  - CIBA 対応の Web アプリケーション (Grant Type: `CIBA` または `urn:openid:params:grant-type:ciba`)
+  - `sample-stock-api` という識別子を持つ API (`stock:trade` パーミッションを追加)
+  - Auth0 Guardian を用いたプッシュ通知 MFA と、登録済みのテストユーザー
 
-- An OpenAI account and API key. You can create one [here](https://platform.openai.com).
-  - [Use this page for instructions on how to find your OpenAI API key](https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key)
-- An **[Auth0](https://auth0.com)** account and the following settings and resources configured:
-  - An application for CIBA with the following settings:
-    - **Application Type**: `Web Application`
-    - **Grant Type**: `CIBA` (or `urn:openid:params:grant-type:ciba`)
-  - An API with the following settings:
-    - **Name**: `Sample Stock API`
-    - **Identifier**: `sample-stock-api`
-    - **Permissions**: `stock:trade`
-  - **Push Notifications** using [Auth0 Guardian](https://auth0.com/docs/secure/multi-factor-authentication/auth0-guardian) must be `enabled`
-  - A test user enrolled in Guardian MFA.
+## 環境変数の設定
 
-### Setup the workspace `.env` file
+`.env.example` を `.env.local` にコピーし、必要な値を入力します。ランタイムでは `.env` → `.env.local` の順に読み込まれ、後者で上書きされます。
 
-Copy the `.env.example` file to `.env` and fill in the values for the following variables, using the settings obtained from the prerequisites:
-
-```sh
+```bash
 # Auth0
 AUTH0_DOMAIN="<auth0-domain>"
-# Client for CIBA
 AUTH0_CLIENT_ID="<auth0-client-id>"
 AUTH0_CLIENT_SECRET="<auth0-client-secret>"
 
@@ -34,24 +24,31 @@ AUTH0_CLIENT_SECRET="<auth0-client-secret>"
 STOCK_API_URL=http://an-api-url
 STOCK_API_AUDIENCE=sample-stock-api
 
-# OpenAI
-OPENAI_API_KEY="openai-api-key"
+# Amazon Bedrock
+AWS_ACCESS_KEY_ID=xxxxxxxx
+AWS_SECRET_ACCESS_KEY=xxxxxxxx
+AWS_REGION=us-east-1
+BEDROCK_MODEL_ID=anthropic.claude-3-haiku-20240307-v1:0
 ```
 
-### How to run it
+既定の `.env.example` には OpenAI 用の変数が含まれています。Bedrock を利用する場合は `OPENAI_API_KEY` を削除し、Vercel AI SDK のモデル指定を Bedrock 用に更新してください。
 
-1. Install dependencies.
+## 実行手順
 
-   ```sh
+1. 依存関係をインストールします。
+
+   ```bash
    npm install
    ```
 
-2. Running the example
+2. サンプルを実行します。
 
-   ```sh
+   ```bash
    npm start
    ```
 
-## License
+   実行すると Auth0 Guardian へ通知が送信されます。モバイル端末で承認し、コンソールに表示される実行結果を確認してください。
 
-Apache-2.0
+## ライセンス
+
+Apache-2.0 ライセンスです。
