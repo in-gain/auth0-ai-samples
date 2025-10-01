@@ -24,7 +24,7 @@ Auth0の認証・認可機能を生成AIアプリケーションの文脈で紹�
 | `AUTH0_DOMAIN` | 利用する Auth0 テナントのドメイン。先頭に `https://` を付けて入力します。 | `https://tenant-region.auth0.com` |
 | `AUTH0_CLIENT_ID` | Auth0 で登録したアプリケーションのクライアント ID。 | `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx` |
 | `AUTH0_CLIENT_SECRET` | アプリケーションのクライアントシークレット。マシン間通信があるサンプルで必須です。 | `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx` |
-| `AUTH0_SECRET` | Next.js などのセッション暗号化に使用する値。`openssl rand -hex 32` で生成します。 | `f3e...` |
+| `AUTH0_SECRET` | Next.js などのセッション暗号化に使用する値。`.env.example` には PoC 用に事前生成した値が含まれるため、そのまま利用できます（本番相当の環境では `openssl rand -hex 32` などで再発行してください）。 | `f3e...` |
 | `DATABASE_URL` | サンプルが利用する PostgreSQL などのデータベース接続文字列。ローカル検証では Docker などで Postgres を起動します。 | `postgresql://postgres:postgres@localhost:5432/ai_documents_db` |
 
 ### LLM プロバイダー別の追加設定
