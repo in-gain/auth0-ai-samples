@@ -10,8 +10,13 @@ Auth0の認証・認可機能を生成AIアプリケーションの文脈で紹�
 - [**call-apis-on-users-behalf**](https://auth0.com/ai/docs/call-others-apis-on-users-behalf): Google や GitHub などの API トークンを安全な標準で取得し、他プロダクトとの連携をシームレスに実現できます。
 - [**authorization-for-rag**](https://auth0.com/ai/docs/authorization-for-rag): ユーザーがアクセス権を持つドキュメントのみを取得し、閲覧できないはずのデータが漏洩することを防ぎます。
 - [**asynchronous-authorization**](https://auth0.com/ai/docs/async-authorization): 自律的・非同期的に動作するエージェントがバックグラウンドで作業できるようにし、必要に応じて承認をリクエストする非同期認可を実装できます。
+- [Auth0 AI へのサインアップはこちら](https://auth0.com/signup?onboard_app=genai&ocid=7014z000001NyoxAAC-aPA4z0000008OZeGAM)
 
-[Auth0 AI へのサインアップはこちら](https://auth0.com/signup?onboard_app=genai&ocid=7014z000001NyoxAAC-aPA4z0000008OZeGAM)
+## AWS 設定ガイド
+
+Amazon Bedrock を利用するサンプルでは、AWS 側での初期設定が必要です。IAM ポリシーの作成や認証情報の管理手順については、[Amazon Bedrock を利用するための AWS 設定手順](docs/aws-bedrock-setup.md)を参照してください。
+
+[**Sign up for Auth0 AI**](https://auth0.com/signup?onboard_app=genai&ocid=7014z000001NyoxAAC-aPA4z0000008OZeGAM)
 
 # クイックスタートのリリースについて
 
