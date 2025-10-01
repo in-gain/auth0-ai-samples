@@ -1,9 +1,32 @@
+import "dotenv/config";
 import { setAIContext } from "@auth0/ai-vercel";
 import crypto from "node:crypto";
 import { generateText } from "ai";
-import { openai } from "@ai-sdk/openai";
+import { createAmazonBedrock } from "@ai-sdk/amazon-bedrock";
+import { fromNodeProviderChain } from "@aws-sdk/credential-providers";
 
 import { buy } from "./lib/tools/buy";
+
+const region = process.env.BEDROCK_REGION;
+const modelId = process.env.BEDROCK_CHAT_MODEL_ID;
+
+if (!region) {
+  throw new Error("BEDROCK_REGION is not defined");
+}
+
+if (!modelId) {
+  throw new Error("BEDROCK_CHAT_MODEL_ID is not defined");
+}
+
+const credentialsChain = fromNodeProviderChain({ profile: process.env.AWS_PROFILE });
+
+const bedrock = createAmazonBedrock({
+  region,
+  credentialProvider: async () => {
+    const { accessKeyId, secretAccessKey, sessionToken } = await credentialsChain();
+    return { accessKeyId, secretAccessKey, sessionToken };
+  },
+});
 
 async function main() {
   const threadID = crypto.randomUUID();
@@ -14,7 +37,7 @@ async function main() {
   );
 
   const { text } = await generateText({
-    model: openai("gpt-4o-mini"),
+    model: bedrock(modelId),
     prompt: "Buy 3 stocks of Google",
     maxSteps: 2,
     tools: {

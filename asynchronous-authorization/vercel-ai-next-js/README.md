@@ -21,9 +21,10 @@ cd auth0-ai-samples/asynchronous-authorization/vercel-ai-next-js
 
 Next, you'll need to set up environment variables in your repo's `.env.local` file. Copy the `.env.example` file to `.env.local`.
 
-- To start with the examples, you'll just need to add your OpenAI API key and Auth0 credentials for the Web app and Machine to Machine App.
-  - You can setup a new Auth0 tenant with an Auth0 Web App and Token Vault following the Prerequisites instructions [here](https://auth0.com/ai/docs/call-others-apis-on-users-behalf).
-  - Click on the tenant name on the [Quickstarts](https://auth0.com/ai/docs/call-your-apis-on-users-behalf), Go to the app settings (**Applications** -> **Applications** -> **WebApp Quickstart Client** -> **Settings** -> **Advanced Settings** -> **Grant Types**) and enable the CIBA grant and save.
+- Provide your Amazon Bedrock configuration (for example `BEDROCK_REGION`, `BEDROCK_CHAT_MODEL_ID`, and optional `BEDROCK_EMBEDDING_MODEL_ID`) together with AWS credentials.
+  - You can supply credentials through standard AWS environment variables (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, optional `AWS_SESSION_TOKEN`) or by referencing an `AWS_PROFILE` that has access to Bedrock.
+  - Set your Auth0 Web Application and Machine-to-Machine (Token Vault) credentials following the prerequisites [here](https://auth0.com/ai/docs/call-others-apis-on-users-behalf).
+  - Click on the tenant name on the [Quickstarts](https://auth0.com/ai/docs/call-your-apis-on-users-behalf), go to the app settings (**Applications** -> **Applications** -> **WebApp Quickstart Client** -> **Settings** -> **Advanced Settings** -> **Grant Types**), enable the CIBA grant, and save.
 
 Next, install the required packages using your preferred package manager and initialize the database.
 

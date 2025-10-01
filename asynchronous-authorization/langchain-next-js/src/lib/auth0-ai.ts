@@ -13,6 +13,11 @@ export const withAsyncAuthorization = auth0AI.withAsyncUserConfirmation({
   audience: process.env['SHOP_API_AUDIENCE']!,
 
   /**
+   * Note: Setting a requested expiry greater than 300 (seconds) will force email verification
+   * instead of using the push notification flow.
+   */
+  // requestedExpiry: 301,
+  /**
    * When this flag is set to `block`, the execution of the tool awaits
    * until the user approves or rejects the request.
    *

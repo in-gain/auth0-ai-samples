@@ -6,8 +6,8 @@
 
 ### Prerequisites
 
-- An OpenAI account and API key. You can create one [here](https://platform.openai.com).
-  - [Use this page for instructions on how to find your OpenAI API key](https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key)
+- AWS credentials with access to [Amazon Bedrock](https://aws.amazon.com/bedrock/).
+  - You can provide credentials through environment variables (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, optional `AWS_SESSION_TOKEN`) or by configuring an `AWS_PROFILE` that has Bedrock permissions.
 - An **[Auth0](https://auth0.com)** account and the following settings and resources configured:
   - An application for CIBA with the following settings:
     - **Application Type**: `Web Application`
@@ -34,8 +34,16 @@ AUTH0_CLIENT_SECRET="<auth0-client-secret>"
 STOCK_API_URL=http://an-api-url
 STOCK_API_AUDIENCE=sample-stock-api
 
-# OpenAI
-OPENAI_API_KEY="openai-api-key"
+# Amazon Bedrock
+BEDROCK_REGION=us-east-1
+BEDROCK_CHAT_MODEL_ID=anthropic.claude-3-5-sonnet-20241022-v1:0
+# Optional embedding model configuration if you expand the sample
+# BEDROCK_EMBEDDING_MODEL_ID=amazon.titan-embed-text-v2:0
+# Provide credentials via AWS_PROFILE or AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY
+# AWS_PROFILE=default
+# AWS_ACCESS_KEY_ID=""
+# AWS_SECRET_ACCESS_KEY=""
+# AWS_SESSION_TOKEN=""
 ```
 
 ### How to run it
