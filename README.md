@@ -11,6 +11,10 @@ Samples are organized as below:
 - [**authorization-for-rag**](https://auth0.com/ai/docs/authorization-for-rag): Only retrieve documents users have access to. Avoid leaking data to a user that should not have access to it.
 - [**asynchronous-authorization**](https://auth0.com/ai/docs/async-authorization): Let your autonomous, async agents do work in the background. Use Async Auth to request approval when needed.
 
+## AWS 設定ガイド
+
+Amazon Bedrock を利用するサンプルでは、AWS 側での初期設定が必要です。IAM ポリシーの作成や認証情報の管理手順については、[Amazon Bedrock を利用するための AWS 設定手順](docs/aws-bedrock-setup.md)を参照してください。
+
 [**Sign up for Auth0 AI**](https://auth0.com/signup?onboard_app=genai&ocid=7014z000001NyoxAAC-aPA4z0000008OZeGAM)
 
 # Quickstart releases
