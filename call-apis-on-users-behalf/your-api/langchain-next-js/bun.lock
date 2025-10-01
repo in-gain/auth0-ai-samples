@@ -6,7 +6,7 @@
       "dependencies": {
         "@auth0/ai-langchain": "3.2.0",
         "@auth0/nextjs-auth0": "4.4.2",
-        "@langchain/aws": "^0.1.8",
+        "@langchain/aws": "^0.1.15",
         "@langchain/community": "0.3.42",
         "@langchain/core": "0.3.63",
         "@langchain/langgraph": "0.3",
