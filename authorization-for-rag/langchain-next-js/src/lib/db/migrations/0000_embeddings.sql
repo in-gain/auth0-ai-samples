@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS "embeddings" (
 	"document_id" varchar(191),
 	"content" text NOT NULL,
 	"metadata" jsonb NOT NULL,
-	"embedding" vector(1536) NOT NULL
+        "embedding" vector(1024) NOT NULL
 );
 
 --> statement-breakpoint

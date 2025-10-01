@@ -1,4 +1,4 @@
-import { OpenAIEmbeddings } from '@langchain/openai';
+import { BedrockEmbeddings } from '@langchain/aws';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 import { desc, gt, sql, cosineDistance } from 'drizzle-orm';
 import { PGVectorStore, DistanceStrategy } from '@langchain/community/vectorstores/pgvector';
@@ -8,8 +8,20 @@ import { URL } from 'url';
 import { db } from '@/lib/db';
 import { embeddings } from '@/lib/db/schema/embeddings';
 
-const embeddingModel = new OpenAIEmbeddings({
-  model: 'text-embedding-3-small',
+const embeddingRegion = process.env.BEDROCK_REGION;
+const embeddingModelId = process.env.BEDROCK_EMBEDDING_MODEL_ID;
+
+if (!embeddingRegion) {
+  throw new Error('BEDROCK_REGION is not defined');
+}
+
+if (!embeddingModelId) {
+  throw new Error('BEDROCK_EMBEDDING_MODEL_ID is not defined');
+}
+
+const embeddingModel = new BedrockEmbeddings({
+  region: embeddingRegion,
+  model: embeddingModelId,
 });
 
 export const generateEmbeddings = async (value: string): Promise<Array<{ embedding: number[]; content: string }>> => {
