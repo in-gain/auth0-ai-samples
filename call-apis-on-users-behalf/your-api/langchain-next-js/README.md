@@ -1,100 +1,165 @@
-## Assistant0: An AI Personal Assistant Secured with Auth0
+## ユーザーに代わってAPIを呼ぶ: Your API サンプル
 
-Assistant0 an AI personal assistant that consolidates your digital life by dynamically accessing multiple tools to help you stay organized and efficient. Here’s some of the features that can be implemented:
+このサンプルは、**認証されたユーザーのアクセストークンを使用して、自分のAPI（Auth0の/userinfoエンドポイント）を呼び出す**方法を示します。
 
-1. **Gmail Integration:** The assistant can scan your inbox to generate concise summaries. It can highlight urgent emails, categorizes conversations by importance, and even suggests drafts for quick replies.
-2. **Calendar Management:** By interfacing with your calendar, it can remind you of upcoming meetings, check for scheduling conflicts, and even propose the best time slots for new appointments based on your availability.
-3. **User Information Retrieval:** The assistant can retrieve information about the user from their authentication profile, including their name, email, and other relevant details.
-4. **Online Shopping with Human-in-the-Loop Authorizations:** The assistant can make purchases on your behalf (using a fake API for demo purposes), with the ability to ask for human confirmation before finalizing transactions.
-5. **Document Upload and Retrieval:** The assistant can upload PDF and text documents to the database and retrieve them for context during chat. The docs can be shared with other users.
+### このサンプルが行うこと
 
-With tool-calling capabilities, the possibilities are endless. In this conceptual scenario, the AI agent embodies a digital personal secretary—one that not only processes information but also proactively collates data from connected services to provide comprehensive task management. This level of integration not only enhances efficiency but also ushers in a new era of intelligent automation, where digital assistants serve as reliable, all-in-one solutions that tailor themselves to your personal and professional needs.
+このプロジェクトは、「ユーザーに代わってAPIを呼ぶ」の最も基本的な形を示します：
 
-## 🚀 Getting Started
+- ✅ Auth0でユーザー認証
+- ✅ ユーザーのアクセストークンを使用してAuth0の`/userinfo`エンドポイントを呼び出し
+- ✅ ユーザーの認証情報を保存せずに安全なAPI呼び出しを実現
 
-First, clone this repo and download it locally.
+### 主な機能
+
+1. **ユーザー情報取得ツール**: AIアシスタントがログイン中のユーザーのAuth0プロファイル（名前、メールなど）から情報を取得できます
+2. **計算機**: デモンストレーション用の基本的な計算機能
+
+### authenticate-usersとの違い
+
+- **authenticate-users**: 認証のみ - ユーザーに代わってAPIを呼び出さない
+- **your-api**（このプロジェクト）: 認証 + ユーザーのトークンでAuth0 APIを呼び出す ✅
+
+## 🚀 セットアップ手順
+
+### 前提条件
+
+- Node.js 18以上
+- Auth0アカウント
+- Amazon Bedrockへのアクセス権を持つAWSアカウント
+
+### 1. リポジトリのクローン
 
 ```bash
 git clone https://github.com/auth0-samples/auth0-assistant0.git
-cd auth0-assistant0/authenticate-users/langchain-next-js
+cd auth0-assistant0/call-apis-on-users-behalf/your-api/langchain-next-js
 ```
 
-Next, you'll need to set up environment variables in your repo's `.env.local` file. Copy the `.env.example` file to `.env.local`.
+### 2. 環境変数の設定
 
-To start with the basic examples, add your Amazon Bedrock configuration (region, chat model ID, and embedding model ID) and Auth0 credentials.
-- You'll need AWS credentials that are authorized to invoke Amazon Bedrock in the selected region, plus Auth0 credentials for the Web app and Machine to Machine App.
-  - You can setup a new Auth0 tenant with an Auth0 Web App and Token Vault following the Prerequisites instructions [here](https://auth0.com/ai/docs/call-others-apis-on-users-behalf).
-  - An Auth0 FGA account, you can create one [here](https://dashboard.fga.dev). Add the FGA store ID, client ID, client secret, and API URL to the `.env.local` file.
-
-Next, install the required packages using your preferred package manager and initialize the database.
+`.env.example`を`.env.local`にコピー：
 
 ```bash
-bun install # or npm install
-# Optional - start the postgres database
+cp .env.example .env.local
+```
+
+`.env.local`を編集して以下を追加：
+
+#### Amazon Bedrock設定
+
+```bash
+AWS_BEARER_TOKEN_BEDROCK="<your-bedrock-bearer-token>"
+BEDROCK_REGION="us-east-1"
+BEDROCK_CHAT_MODEL_ID="anthropic.claude-3-5-sonnet-20241022-v1:0"
+BEDROCK_EMBEDDING_MODEL_ID="amazon.titan-embed-text-v2:0"
+```
+
+#### Auth0設定
+
+```bash
+AUTH0_SECRET="<ランダムな32文字の文字列>"  # 生成: openssl rand -hex 32
+AUTH0_BASE_URL="http://localhost:3000"
+AUTH0_DOMAIN="https://YOUR_DOMAIN.auth0.com"
+AUTH0_CLIENT_ID="<your-client-id>"
+AUTH0_CLIENT_SECRET="<your-client-secret>"
+```
+
+**Auth0セットアップ手順:**
+1. [Auth0ダッシュボード](https://manage.auth0.com/)にアクセス
+2. 新しいApplicationを作成 → 「Regular Web Applications」を選択
+3. Settings内で設定:
+   - **Allowed Callback URLs**に`http://localhost:3000/api/auth/callback`を追加
+   - **Allowed Logout URLs**に`http://localhost:3000`を追加
+   - **Allowed Web Origins**に`http://localhost:3000`を追加
+
+#### データベース設定
+
+```bash
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/ai_documents_db"
+```
+
+#### LangGraph設定
+
+```bash
+LANGGRAPH_API_URL="http://localhost:54367"
+```
+
+### 3. 依存関係のインストールとデータベース初期化
+
+```bash
+npm install
+
+# オプション - PostgreSQLデータベースを起動
 docker compose up -d
-# Optional - create the database schema
-bun db:migrate # or npm run db:migrate
+
+# オプション - データベーススキーマを作成
+npm run db:migrate
 ```
 
-Now you're ready to run the development server:
+またはセットアップスクリプトを使用：
 
 ```bash
-bun all:dev # or npm run all:dev
+npm run setup
 ```
 
-This will start an in-memory LangGraph server on port 54367 and a Next.js server on port 3000. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result! Ask the bot something and you'll see a streamed response:
+### 4. 開発サーバーの起動
 
-![A streaming conversation between the user and the AI](./public/images/home-page.png)
+```bash
+npm run all:dev
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+以下が起動します：
+- **LangGraphサーバー**: http://localhost:54367
+- **Next.jsサーバー**: http://localhost:3000
 
-Agent configuration lives in `src/lib/agent.ts`. From here, you can change the prompt and model, or add other tools and logic.
+ブラウザで [http://localhost:3000](http://localhost:3000) を開いてください！
 
-### Security Challenges with Tool Calling AI Agents
+### 5. 試してみる
 
-Building such an assistant is not too difficult. Thanks to frameworks like [LangChain](https://www.langchain.com/), [LlamaIndex](https://www.llamaindex.ai/), and [Vercel AI](https://vercel.com/ai), you can get started quickly. The difficult part is doing it securely so that you can protect the user's data and credentials.
+Auth0でログイン後、AIに以下のように質問してみてください：
 
-Many current solutions involve storing credentials and secrets in the AI agent application’s environment or letting the agent impersonate the user. This is not a good idea, as it can lead to security vulnerabilities and excessive scope and access for the AI agent.
+- "私の情報を教えて"
+- "私のメールアドレスは？"
+- "ログインしているユーザー名は？"
 
-### Tool Calling with the Help of Auth0
+AIは`getUserInfoTool`を使用して、あなたのアクセストークンでAuth0の`/userinfo`エンドポイントを呼び出し、プロファイル情報を取得します。
 
-This is where Auth0 comes to the rescue. As the leading identity provider (IdP) for modern applications, our upcoming product, [Auth for GenAI](https://a0.to/ai-content), provides standardized ways built on top of OAuth and OpenID Connect to call APIs of tools on behalf of the end user from your AI agent.
+## 動作の仕組み
 
-Auth0's [Token Vault](https://auth0.com/docs/secure/tokens/token-vault) feature helps broker a secure and controlled handshake between the AI agents and the services you want the agent to interact with on your behalf – in the form of scoped access tokens. This way, the agent and LLM do not have access to the credentials and can only call the tools with the permissions you have defined in Auth0. This also means your AI agent only needs to talk to Auth0 for authentication and not the tools directly, making integrations easier.
+### ユーザー情報ツールの実装
 
-![Tool calling with Federated API token exchange](https://images.ctfassets.net/23aumh6u8s0i/1gY1jvDgZHSfRloc4qVumu/d44bb7102c1e858e5ac64dea324478fe/tool-calling-with-federated-api-token-exchange.jpg)
+このツール（`src/lib/tools/user-info.ts`）は以下を行います：
 
-## Learn more
+1. エージェント設定からユーザーのアクセストークンを受け取る
+2. `https://{AUTH0_DOMAIN}/userinfo`に認証済みリクエストを送信
+3. ユーザーのプロファイル情報を返す
 
-- [Tool Calling in AI Agents: Empowering Intelligent Automation Securely](https://auth0.com/blog/genai-tool-calling-intro/)
-- [Build an AI Assistant with LangGraph, Vercel, and Next.js: Use Gmail as a Tool Securely](https://auth0.com/blog/genai-tool-calling-build-agent-that-calls-gmail-securely-with-langgraph-vercelai-nextjs/)
+```typescript
+const response = await fetch(`https://${process.env.AUTH0_DOMAIN}/userinfo`, {
+  headers: {
+    Authorization: `Bearer ${accessToken}`,
+  },
+});
+```
+
+これが、ユーザーに代わって任意のAPIを呼び出すための基礎となります！
+
+## 詳細情報
+
 - [Call Other's APIs on User's Behalf](https://auth0.com/ai/docs/call-others-apis-on-users-behalf)
+- [Tool Calling in AI Agents: Empowering Intelligent Automation Securely](https://auth0.com/blog/genai-tool-calling-intro/)
 
-## About the template
+## 技術スタック
 
-This template scaffolds an Auth0 + LangChain.js + Next.js starter app. It mainly uses the following libraries:
+- エージェントワークフロー構築のための[LangChain.js](https://js.langchain.com/docs/introduction/)と[LangGraph.js](https://langchain-ai.github.io/langgraphjs/)
+- 安全な認証のための[Auth0 AI SDK](https://github.com/auth0-lab/auth0-ai-js)と[Auth0 Next.js SDK](https://github.com/auth0/nextjs-auth0)
+- Next.js 15 + React 19
+- LLMとしてAmazon Bedrock
 
-- [LangChain's JavaScript framework](https://js.langchain.com/docs/introduction/) and [LangGraph.js](https://langchain-ai.github.io/langgraphjs/) for building agentic workflows.
-- The [Auth0 AI SDK](https://github.com/auth0-lab/auth0-ai-js) and [Auth0 Next.js SDK](https://github.com/auth0/nextjs-auth0) to secure the application and call third-party APIs.
+## ライセンス
 
-It's Vercel's free-tier friendly too! Check out the [bundle size stats below](#-bundle-size).
+このプロジェクトはMITライセンスの下でオープンソース化されています - 詳細は[LICENSE](LICENSE)ファイルを参照してください。
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/oktadev/auth0-assistant0)
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Foktadev%2Fauth0-assistant0)
+## 作成者
 
-
-## 📦 Bundle size
-
-This package has [@next/bundle-analyzer](https://www.npmjs.com/package/@next/bundle-analyzer) set up by default - you can explore the bundle size interactively by running:
-
-```bash
-$ ANALYZE=true bun run build
-```
-
-## License
-
-This project is open-sourced under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Author
-
-This project is built by [Deepu K Sasidharan](https://github.com/deepu105).
+このプロジェクトは [Deepu K Sasidharan](https://github.com/deepu105) によって構築されました。

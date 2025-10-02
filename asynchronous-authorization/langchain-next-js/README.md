@@ -1,100 +1,209 @@
-## Assistant0: An AI Personal Assistant Secured with Auth0
+## 非同期認可: AIアクションのためのHuman-in-the-Loop
 
-Assistant0 an AI personal assistant that consolidates your digital life by dynamically accessing multiple tools to help you stay organized and efficient. Here’s some of the features that can be implemented:
+このサンプルは、**非同期認可（Human-in-the-Loop）**を示します。AIが購入などの重要なアクションを実行する前に、ユーザーの確認を求めます。
 
-1. **Gmail Integration:** The assistant can scan your inbox to generate concise summaries. It can highlight urgent emails, categorizes conversations by importance, and even suggests drafts for quick replies.
-2. **Calendar Management:** By interfacing with your calendar, it can remind you of upcoming meetings, check for scheduling conflicts, and even propose the best time slots for new appointments based on your availability.
-3. **User Information Retrieval:** The assistant can retrieve information about the user from their authentication profile, including their name, email, and other relevant details.
-4. **Online Shopping with Human-in-the-Loop Authorizations:** The assistant can make purchases on your behalf (using a fake API for demo purposes), with the ability to ask for human confirmation before finalizing transactions.
-5. **Document Upload and Retrieval:** The assistant can upload PDF and text documents to the database and retrieve them for context during chat. The docs can be shared with other users.
+### このサンプルが行うこと
 
-With tool-calling capabilities, the possibilities are endless. In this conceptual scenario, the AI agent embodies a digital personal secretary—one that not only processes information but also proactively collates data from connected services to provide comprehensive task management. This level of integration not only enhances efficiency but also ushers in a new era of intelligent automation, where digital assistants serve as reliable, all-in-one solutions that tailor themselves to your personal and professional needs.
+このプロジェクトは、AIエージェントが明示的なユーザー承認なしに重要なアクションを取らないようにするHuman-in-the-Loop認可の実装方法を示します：
 
-## 🚀 Getting Started
+- ✅ Auth0でユーザー認証
+- ✅ AIがアクション（例：オンラインショッピング）を提案
+- ✅ **実行を一時停止してユーザーの確認を求める**
+- ✅ ユーザーが承認した場合のみ続行
 
-First, clone this repo and download it locally.
+### このサンプルが解決する問題
+
+AIエージェントは間違いを犯したり、ユーザーの意図を誤解したりする可能性があります。人間の監視がなければ、以下のようなことが起こり得ます：
+
+- 間違った商品を購入
+- 間違った宛先にメールを送信
+- 重要なデータを削除
+- 金融取引を誤って実行
+
+非同期認可（Human-in-the-Loop）は、重要な操作を実行する前に明示的なユーザー承認を要求することで、これらの問題を防ぎます。
+
+### 主な機能
+
+1. **非同期認可付きオンラインショッピングツール**: AIは商品を検索してカートに追加できますが、購入前にユーザーの承認が必要
+2. **LangGraph Interrupts**: LangGraphの中断メカニズムを使用して実行を一時停止し、ユーザー入力を待つ
+3. **ユーザー承認フロー**: AIが何をしようとしているかを明確に示し、確認を求めるUI
+4. **安全なAIアクション**: AIの動作の透明性とユーザーコントロールを保証
+
+## 🚀 セットアップ手順
+
+### 前提条件
+
+- Node.js 18以上
+- Auth0アカウント
+- Amazon Bedrockへのアクセス権を持つAWSアカウント
+
+### 1. リポジトリのクローン
 
 ```bash
 git clone https://github.com/auth0-samples/auth0-assistant0.git
-cd auth0-assistant0/authenticate-users/langchain-next-js
+cd auth0-assistant0/asynchronous-authorization/langchain-next-js
 ```
 
-Next, you'll need to set up environment variables in your repo's `.env.local` file. Copy the `.env.example` file to `.env.local`.
+### 2. 環境変数の設定
 
-To start with the basic examples, add your Amazon Bedrock configuration (region, chat model ID, and embedding model ID) and Auth0 credentials.
-- You'll need AWS credentials that are authorized to invoke Amazon Bedrock in the selected region, plus Auth0 credentials for the Web app and Machine to Machine App.
-  - You can setup a new Auth0 tenant with an Auth0 Web App and Token Vault following the Prerequisites instructions [here](https://auth0.com/ai/docs/call-others-apis-on-users-behalf).
-  - An Auth0 FGA account, you can create one [here](https://dashboard.fga.dev). Add the FGA store ID, client ID, client secret, and API URL to the `.env.local` file.
-
-Next, install the required packages using your preferred package manager and initialize the database.
+`.env.example`を`.env.local`にコピー：
 
 ```bash
-bun install # or npm install
-# Optional - start the postgres database
+cp .env.example .env.local
+```
+
+`.env.local`を編集して以下を追加：
+
+#### Amazon Bedrock設定
+
+```bash
+AWS_BEARER_TOKEN_BEDROCK="<your-bedrock-bearer-token>"
+BEDROCK_REGION="us-east-1"
+BEDROCK_CHAT_MODEL_ID="anthropic.claude-3-5-sonnet-20241022-v1:0"
+BEDROCK_EMBEDDING_MODEL_ID="amazon.titan-embed-text-v2:0"
+```
+
+#### Auth0設定
+
+```bash
+AUTH0_SECRET="<ランダムな32文字の文字列>"  # 生成: openssl rand -hex 32
+AUTH0_BASE_URL="http://localhost:3000"
+AUTH0_DOMAIN="https://YOUR_DOMAIN.auth0.com"
+AUTH0_CLIENT_ID="<your-client-id>"
+AUTH0_CLIENT_SECRET="<your-client-secret>"
+```
+
+**Auth0セットアップ手順:**
+1. [Auth0ダッシュボード](https://manage.auth0.com/)にアクセス
+2. 新しいApplicationを作成 → 「Regular Web Applications」を選択
+3. Settings内で設定:
+   - **Allowed Callback URLs**に`http://localhost:3000/api/auth/callback`を追加
+   - **Allowed Logout URLs**に`http://localhost:3000`を追加
+   - **Allowed Web Origins**に`http://localhost:3000`を追加
+
+#### データベース設定
+
+```bash
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/ai_documents_db"
+```
+
+#### LangGraph設定
+
+```bash
+LANGGRAPH_API_URL="http://localhost:54367"
+```
+
+### 3. 依存関係のインストールとデータベース初期化
+
+```bash
+npm install
+
+# オプション - PostgreSQLデータベースを起動
 docker compose up -d
-# Optional - create the database schema
-bun db:migrate # or npm run db:migrate
+
+# オプション - データベーススキーマを作成
+npm run db:migrate
 ```
 
-Now you're ready to run the development server:
+またはセットアップスクリプトを使用：
 
 ```bash
-bun all:dev # or npm run all:dev
+npm run setup
 ```
 
-This will start an in-memory LangGraph server on port 54367 and a Next.js server on port 3000. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result! Ask the bot something and you'll see a streamed response:
+### 4. 開発サーバーの起動
 
-![A streaming conversation between the user and the AI](./public/images/home-page.png)
+```bash
+npm run all:dev
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+以下が起動します：
+- **LangGraphサーバー**: http://localhost:54367
+- **Next.jsサーバー**: http://localhost:3000
 
-Agent configuration lives in `src/lib/agent.ts`. From here, you can change the prompt and model, or add other tools and logic.
+ブラウザで [http://localhost:3000](http://localhost:3000) を開いてください！
 
-### Security Challenges with Tool Calling AI Agents
+### 5. 試してみる
 
-Building such an assistant is not too difficult. Thanks to frameworks like [LangChain](https://www.langchain.com/), [LlamaIndex](https://www.llamaindex.ai/), and [Vercel AI](https://vercel.com/ai), you can get started quickly. The difficult part is doing it securely so that you can protect the user's data and credentials.
+Auth0でログイン後、AIに購入を依頼してみてください：
 
-Many current solutions involve storing credentials and secrets in the AI agent application’s environment or letting the agent impersonate the user. This is not a good idea, as it can lead to security vulnerabilities and excessive scope and access for the AI agent.
+- "ノートパソコンを買って"
+- "コーヒーメーカーを購入してください"
+- "$1000以下のスマートフォンを探して買って"
 
-### Tool Calling with the Help of Auth0
+**何が起こるか:**
+1. AIが商品を検索
+2. AIが購入を提案
+3. **確認ダイアログが表示**され、承認または拒否を求められる
+4. 承認した場合のみ、購入が実行される
+5. 拒否した場合、AIは確認して停止
 
-This is where Auth0 comes to the rescue. As the leading identity provider (IdP) for modern applications, our upcoming product, [Auth for GenAI](https://a0.to/ai-content), provides standardized ways built on top of OAuth and OpenID Connect to call APIs of tools on behalf of the end user from your AI agent.
+## 動作の仕組み
 
-Auth0's [Token Vault](https://auth0.com/docs/secure/tokens/token-vault) feature helps broker a secure and controlled handshake between the AI agents and the services you want the agent to interact with on your behalf – in the form of scoped access tokens. This way, the agent and LLM do not have access to the credentials and can only call the tools with the permissions you have defined in Auth0. This also means your AI agent only needs to talk to Auth0 for authentication and not the tools directly, making integrations easier.
+### 非同期認可フロー
 
-![Tool calling with Federated API token exchange](https://images.ctfassets.net/23aumh6u8s0i/1gY1jvDgZHSfRloc4qVumu/d44bb7102c1e858e5ac64dea324478fe/tool-calling-with-federated-api-token-exchange.jpg)
+1. ユーザー: "ノートパソコンを買って"
+2. AIが商品と Action で`shopOnlineTool`を呼び出す
+3. `withAsyncAuthorization`ラッパーが**エージェントの実行を中断**
+4. 確認リクエストがユーザーインターフェースに送信される
+5. エージェントはユーザーの応答を**待つ**
+6. ユーザーが「承認」または「拒否」をクリック
+7. 承認された場合: エージェントが再開し、購入を実行
+8. 拒否された場合: エージェントが停止し、ユーザーに通知
 
-## Learn more
+### 実装
 
-- [Tool Calling in AI Agents: Empowering Intelligent Automation Securely](https://auth0.com/blog/genai-tool-calling-intro/)
-- [Build an AI Assistant with LangGraph, Vercel, and Next.js: Use Gmail as a Tool Securely](https://auth0.com/blog/genai-tool-calling-build-agent-that-calls-gmail-securely-with-langgraph-vercelai-nextjs/)
+重要なのは`withAsyncAuthorization`ラッパーです：
+
+```typescript
+const tools = [
+  new Calculator(),
+  withAsyncAuthorization(shopOnlineTool)
+];
+```
+
+このラッパーは：
+- ツール呼び出しを傍受
+- LangGraphの中断をトリガー
+- ユーザー承認を待つ
+- 承認された場合のみ続行
+
+### メリット
+
+- ✅ **安全性**: 意図しないまたは有害なAIアクションを防止
+- ✅ **透明性**: ユーザーはAIが何をしようとしているかを正確に把握
+- ✅ **コントロール**: ユーザーが重要なアクションに対して最終決定権を持つ
+- ✅ **信頼**: AIアシスタントへの信頼を構築
+- ✅ **コンプライアンス**: AI監視の規制要件を満たすのに役立つ
+
+## Human-in-the-Loopのユースケース
+
+このパターンは以下の場合に不可欠です：
+
+- **金融取引**: 購入、送金、支払い
+- **コミュニケーション**: メール、メッセージ、通知の送信
+- **データ変更**: 重要なデータの削除、更新、移動
+- **外部アクション**: 予約、アポイントメント
+- **アクセス制御**: 権限の付与やリソースの共有
+
+## 詳細情報
+
 - [Call Other's APIs on User's Behalf](https://auth0.com/ai/docs/call-others-apis-on-users-behalf)
+- [Tool Calling in AI Agents: Empowering Intelligent Automation Securely](https://auth0.com/blog/genai-tool-calling-intro/)
+- [LangGraph Interrupts Documentation](https://langchain-ai.github.io/langgraphjs/how-tos/human-in-the-loop/)
 
-## About the template
+## 技術スタック
 
-This template scaffolds an Auth0 + LangChain.js + Next.js starter app. It mainly uses the following libraries:
+- エージェントワークフロー構築のための[LangChain.js](https://js.langchain.com/docs/introduction/)と[LangGraph.js](https://langchain-ai.github.io/langgraphjs/)
+- 安全な認証のための[Auth0 AI SDK](https://github.com/auth0-lab/auth0-ai-js)と[Auth0 Next.js SDK](https://github.com/auth0/nextjs-auth0)
+- Human-in-the-LoopのためのLangGraph Interrupts
+- Next.js 15 + React 19
+- LLMとしてAmazon Bedrock
 
-- [LangChain's JavaScript framework](https://js.langchain.com/docs/introduction/) and [LangGraph.js](https://langchain-ai.github.io/langgraphjs/) for building agentic workflows.
-- The [Auth0 AI SDK](https://github.com/auth0-lab/auth0-ai-js) and [Auth0 Next.js SDK](https://github.com/auth0/nextjs-auth0) to secure the application and call third-party APIs.
+## ライセンス
 
-It's Vercel's free-tier friendly too! Check out the [bundle size stats below](#-bundle-size).
+このプロジェクトはMITライセンスの下でオープンソース化されています - 詳細は[LICENSE](LICENSE)ファイルを参照してください。
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/oktadev/auth0-assistant0)
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Foktadev%2Fauth0-assistant0)
+## 作成者
 
-
-## 📦 Bundle size
-
-This package has [@next/bundle-analyzer](https://www.npmjs.com/package/@next/bundle-analyzer) set up by default - you can explore the bundle size interactively by running:
-
-```bash
-$ ANALYZE=true bun run build
-```
-
-## License
-
-This project is open-sourced under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Author
-
-This project is built by [Deepu K Sasidharan](https://github.com/deepu105).
+このプロジェクトは [Deepu K Sasidharan](https://github.com/deepu105) によって構築されました。

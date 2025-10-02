@@ -3,6 +3,11 @@ import { memo, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 
 function parseMarkdownIntoBlocks(markdown: string): string[] {
+  // Ensure markdown is a string
+  if (typeof markdown !== 'string') {
+    console.error('parseMarkdownIntoBlocks received non-string:', markdown);
+    return [''];
+  }
   const tokens = marked.lexer(markdown);
   return tokens.map((token: any) => token.raw);
 }

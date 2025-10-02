@@ -28,6 +28,12 @@ const runMigrate = async () => {
 };
 
 runMigrate().catch((err) => {
+  // Ignore errors for already existing constraints/tables/schemas
+  const ignoreCodes = ['42710', '42P07', '42P06'];
+  if (err.code && ignoreCodes.includes(err.code)) {
+    console.log('⚠️  Migration skipped (already exists)');
+    process.exit(0);
+  }
   console.error('❌ Migration failed');
   console.error(err);
   process.exit(1);
