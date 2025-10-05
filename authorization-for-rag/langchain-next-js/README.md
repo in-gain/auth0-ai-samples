@@ -39,8 +39,8 @@
 ### 1. リポジトリのクローン
 
 ```bash
-git clone https://github.com/auth0-samples/auth0-assistant0.git
-cd auth0-assistant0/authorization-for-rag/langchain-next-js
+git clone https://github.com/auth0-samples/auth0-ai-samples.git
+cd auth0-ai-samples/authorization-for-rag/langchain-next-js
 ```
 
 ### 2. 環境変数の設定
@@ -62,6 +62,9 @@ BEDROCK_CHAT_MODEL_ID="anthropic.claude-3-5-sonnet-20241022-v1:0"
 BEDROCK_EMBEDDING_MODEL_ID="amazon.titan-embed-text-v2:0"
 ```
 
+- Bearer Token の取得手順と必要な IAM ポリシーは [docs/aws-bedrock-setup.md](../../docs/aws-bedrock-setup.md) を参照してください
+- `ChatBedrockConverse` を利用するため、モデル ID にはバージョン（`:0` など）が必要です
+
 #### Auth0設定
 
 ```bash
@@ -71,6 +74,10 @@ AUTH0_DOMAIN="https://YOUR_DOMAIN.auth0.com"
 AUTH0_CLIENT_ID="<your-client-id>"
 AUTH0_CLIENT_SECRET="<your-client-secret>"
 ```
+
+- [Auth0 Dashboard](https://manage.auth0.com/) で Regular Web Application を作成
+- Allowed Callback URLs: `http://localhost:3000/api/auth/callback`
+- Allowed Logout URLs / Allowed Web Origins: `http://localhost:3000`
 
 #### Auth0 FGA設定
 
