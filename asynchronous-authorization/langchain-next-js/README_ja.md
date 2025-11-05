@@ -15,8 +15,8 @@ Assistant0は、複数のツールに動的にアクセスすることで、あ�
 ### 1. リポジトリのクローン
 
 ```bash
-git clone https://github.com/auth0-samples/auth0-assistant0.git
-cd auth0-assistant0/asynchronous-authorization/langchain-next-js
+git clone https://github.com/auth0-samples/auth0-ai-samples.git
+cd auth0-ai-samples/asynchronous-authorization/langchain-next-js
 ```
 
 ### 2. 環境変数の設定
@@ -27,14 +27,33 @@ cd auth0-assistant0/asynchronous-authorization/langchain-next-js
 cp .env.example .env.local
 ```
 
-### 3. 必要な設定の取得
+`.env.local` に以下の値を設定します。
 
-基本的な例を始めるには、Amazon Bedrock設定（リージョン、チャットモデルID、埋め込みモデルID）とAuth0認証情報を追加します。
+#### Amazon Bedrock（Bearer Token 認証）
 
-- 選択したリージョンでAmazon Bedrockを呼び出す権限を持つAWS認証情報が必要です
-- WebアプリとMachine to Machine AppのAuth0認証情報が必要です
-  - [Prerequisites手順](https://auth0.com/ai/docs/call-others-apis-on-users-behalf)に従って、Auth0 WebアプリとToken Vaultを設定できます
-  - [Auth0 FGAアカウント](https://dashboard.fga.dev)を作成し、FGAストアID、クライアントID、クライアントシークレット、API URLを`.env.local`ファイルに追加します
+```bash
+AWS_BEARER_TOKEN_BEDROCK="<your-bedrock-bearer-token>"
+BEDROCK_REGION="us-east-1"
+BEDROCK_CHAT_MODEL_ID="anthropic.claude-3-5-sonnet-20241022-v1:0"
+BEDROCK_EMBEDDING_MODEL_ID="amazon.titan-embed-text-v2:0"
+```
+
+- Bearer Token の取得方法と IAM ポリシーの詳細は [docs/aws-bedrock-setup.md](../../docs/aws-bedrock-setup.md) を参照してください
+- `ChatBedrockConverse` を利用するため、モデル ID にはバージョン（`:0` など）が必要です
+
+#### Auth0
+
+```bash
+APP_BASE_URL="http://localhost:3000"
+AUTH0_SECRET="<32文字以上のランダムな文字列>"
+AUTH0_DOMAIN="https://<your-tenant>.auth0.com"
+AUTH0_CLIENT_ID="<your-client-id>"
+AUTH0_CLIENT_SECRET="<your-client-secret>"
+```
+
+- [Auth0 Dashboard](https://manage.auth0.com/) で Regular Web Application を作成します
+- Allowed Callback URLs: `http://localhost:3000/api/auth/callback`
+- Allowed Logout URLs / Allowed Web Origins: `http://localhost:3000`
 
 ### 4. パッケージのインストールとデータベース初期化
 
@@ -114,8 +133,8 @@ Auth0の[Token Vault](https://auth0.com/docs/secure/tokens/token-vault)機能は
 
 Vercelの無料枠にも対応しています！
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/oktadev/auth0-assistant0)
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Foktadev%2Fauth0-assistant0)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/auth0-samples/auth0-ai-samples)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fauth0-samples%2Fauth0-ai-samples)
 
 ## 📦 バンドルサイズ
 
