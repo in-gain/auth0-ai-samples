@@ -1,195 +1,100 @@
-## RAGにおける認可: ドキュメントへの細かいアクセス制御
+## Assistant0: An AI Personal Assistant Secured with Auth0
 
-このサンプルは、**Retrieval-Augmented Generation (RAG)における認可**を、Auth0 FGA（Fine-Grained Authorization）を使用してドキュメントレベルで細かくアクセス制御する方法を示します。
+Assistant0 an AI personal assistant that consolidates your digital life by dynamically accessing multiple tools to help you stay organized and efficient. Here’s some of the features that can be implemented:
 
-### このサンプルが行うこと
+1. **Gmail Integration:** The assistant can scan your inbox to generate concise summaries. It can highlight urgent emails, categorizes conversations by importance, and even suggests drafts for quick replies.
+2. **Calendar Management:** By interfacing with your calendar, it can remind you of upcoming meetings, check for scheduling conflicts, and even propose the best time slots for new appointments based on your availability.
+3. **User Information Retrieval:** The assistant can retrieve information about the user from their authentication profile, including their name, email, and other relevant details.
+4. **Online Shopping with Human-in-the-Loop Authorizations:** The assistant can make purchases on your behalf (using a fake API for demo purposes), with the ability to ask for human confirmation before finalizing transactions.
+5. **Document Upload and Retrieval:** The assistant can upload PDF and text documents to the database and retrieve them for context during chat. The docs can be shared with other users.
 
-このプロジェクトは、ユーザーが権限を持つドキュメントのみにアクセスできるようにすることで、RAGシステムを安全にする方法を示します：
+With tool-calling capabilities, the possibilities are endless. In this conceptual scenario, the AI agent embodies a digital personal secretary—one that not only processes information but also proactively collates data from connected services to provide comprehensive task management. This level of integration not only enhances efficiency but also ushers in a new era of intelligent automation, where digital assistants serve as reliable, all-in-one solutions that tailor themselves to your personal and professional needs.
 
-- ✅ Auth0でユーザー認証
-- ✅ ベクトル埋め込みとともにPostgreSQLにドキュメントを保存
-- ✅ **Auth0 FGAを使用してドキュメントレベルの権限を強制**
-- ✅ AIは認可されたドキュメントのみをコンテキストとして取得
+## 🚀 Getting Started
 
-### このサンプルが解決する問題
-
-一般的なRAG実装では、AIがデータベースから**あらゆる**ドキュメントを取得して使用する可能性があり、権限のないユーザーに機密情報を公開してしまう恐れがあります。このサンプルは以下によってそれを防ぎます：
-
-1. ドキュメント取得前にユーザー権限をチェック
-2. FGA認可ルールに基づいて検索結果をフィルタリング
-3. AIがユーザーがアクセスできるドキュメントのみを見られるようにする
-
-### 主な機能
-
-1. **認可付きコンテキストドキュメントツール**: データベースからドキュメントを取得しますが、ユーザーが権限を持つものだけ
-2. **Auth0 FGA統合**: ドキュメントアクセス制御のための細かい認可モデル
-3. **ドキュメントアップロードと管理**: ユーザーはドキュメントをアップロードし、誰がアクセスできるかを制御できます
-4. **pgvectorによるベクトル検索**: 認可されたドキュメントのみを対象としたセマンティック検索
-
-## 🚀 セットアップ手順
-
-### 前提条件
-
-- Node.js 18以上
-- Auth0アカウント
-- Auth0 FGAアカウント（[dashboard.fga.dev](https://dashboard.fga.dev)で作成）
-- Amazon Bedrockへのアクセス権を持つAWSアカウント
-- pgvector拡張機能付きPostgreSQL
-
-### 1. リポジトリのクローン
+First, clone this repo and download it locally.
 
 ```bash
 git clone https://github.com/auth0-samples/auth0-assistant0.git
-cd auth0-assistant0/authorization-for-rag/langchain-next-js
+cd auth0-assistant0/authenticate-users/langchain-next-js
 ```
 
-### 2. 環境変数の設定
+Next, you'll need to set up environment variables in your repo's `.env.local` file. Copy the `.env.example` file to `.env.local`.
 
-`.env.example`を`.env.local`にコピー：
+To start with the basic examples, you'll just need to add your OpenAI API key and Auth0 credentials.
+- To start with the examples, you'll just need to add your OpenAI API key and Auth0 credentials for the Web app and Machine to Machine App.
+  - You can setup a new Auth0 tenant with an Auth0 Web App and Token Vault following the Prerequisites instructions [here](https://auth0.com/ai/docs/call-others-apis-on-users-behalf).
+  - An Auth0 FGA account, you can create one [here](https://dashboard.fga.dev). Add the FGA store ID, client ID, client secret, and API URL to the `.env.local` file.
 
-```bash
-cp .env.example .env.local
-```
-
-`.env.local`を編集して以下を追加：
-
-#### Amazon Bedrock設定
+Next, install the required packages using your preferred package manager and initialize the database.
 
 ```bash
-AWS_BEARER_TOKEN_BEDROCK="<your-bedrock-bearer-token>"
-BEDROCK_REGION="us-east-1"
-BEDROCK_CHAT_MODEL_ID="anthropic.claude-3-5-sonnet-20241022-v1:0"
-BEDROCK_EMBEDDING_MODEL_ID="amazon.titan-embed-text-v2:0"
-```
-
-#### Auth0設定
-
-```bash
-AUTH0_SECRET="<ランダムな32文字の文字列>"
-AUTH0_BASE_URL="http://localhost:3000"
-AUTH0_DOMAIN="https://YOUR_DOMAIN.auth0.com"
-AUTH0_CLIENT_ID="<your-client-id>"
-AUTH0_CLIENT_SECRET="<your-client-secret>"
-```
-
-#### Auth0 FGA設定
-
-```bash
-FGA_STORE_ID="<your-fga-store-id>"
-FGA_CLIENT_ID="<your-fga-client-id>"
-FGA_CLIENT_SECRET="<your-fga-client-secret>"
-FGA_API_URL="https://api.us1.fga.dev"  # またはリージョンに応じたURL
-```
-
-**FGAセットアップ手順:**
-1. [FGAダッシュボード](https://dashboard.fga.dev)にアクセス
-2. 新しいStoreを作成
-3. Store ID、Client ID、Client Secret、API URLをコピー
-4. FGAモデルを初期化: `npm run fga:init`
-
-#### データベース設定
-
-```bash
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/ai_documents_db"
-```
-
-#### LangGraph設定
-
-```bash
-LANGGRAPH_API_URL="http://localhost:54367"
-```
-
-### 3. 依存関係のインストールとデータベース初期化
-
-```bash
-npm install
-
-# pgvector付きPostgreSQLを起動
+bun install # or npm install
+# Optional - start the postgres database
 docker compose up -d
-
-# データベーススキーマを作成
-npm run db:migrate
-
-# FGA認可モデルを初期化
-npm run fga:init
+# Optional - create the database schema
+bun db:migrate # or npm run db:migrate
 ```
 
-またはセットアップスクリプトを使用：
+Now you're ready to run the development server:
 
 ```bash
-npm run setup
-npm run fga:init
+bun all:dev # or npm run all:dev
 ```
 
-### 4. 開発サーバーの起動
+This will start an in-memory LangGraph server on port 54367 and a Next.js server on port 3000. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result! Ask the bot something and you'll see a streamed response:
 
-```bash
-npm run all:dev
-```
+![A streaming conversation between the user and the AI](./public/images/home-page.png)
 
-以下が起動します：
-- **LangGraphサーバー**: http://localhost:54367
-- **Next.jsサーバー**: http://localhost:3000
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-ブラウザで [http://localhost:3000](http://localhost:3000) を開いてください！
+Agent configuration lives in `src/lib/agent.ts`. From here, you can change the prompt and model, or add other tools and logic.
 
-### 5. 試してみる
+### Security Challenges with Tool Calling AI Agents
 
-1. **Auth0でログイン**
-2. **ドキュメントをアップロード**: Documentsページに移動してPDFまたはテキストファイルをアップロード
-3. **権限を設定**: 各ドキュメントに誰がアクセスできるかを制御（オーナーのみまたは共有）
-4. **質問をする**: チャットでドキュメントについて質問
+Building such an assistant is not too difficult. Thanks to frameworks like [LangChain](https://www.langchain.com/), [LlamaIndex](https://www.llamaindex.ai/), and [Vercel AI](https://vercel.com/ai), you can get started quickly. The difficult part is doing it securely so that you can protect the user's data and credentials.
 
-AIは、回答生成時にあなたが権限を持つドキュメントのみを使用します！
+Many current solutions involve storing credentials and secrets in the AI agent application’s environment or letting the agent impersonate the user. This is not a good idea, as it can lead to security vulnerabilities and excessive scope and access for the AI agent.
 
-#### 質問例:
+### Tool Calling with the Help of Auth0
 
-- "アップロードしたドキュメントの内容を教えて"
-- "プロジェクトの概要は？"
+This is where Auth0 comes to the rescue. As the leading identity provider (IdP) for modern applications, our upcoming product, [Auth for GenAI](https://a0.to/ai-content), provides standardized ways built on top of OAuth and OpenID Connect to call APIs of tools on behalf of the end user from your AI agent.
 
-## 動作の仕組み
+Auth0's [Token Vault](https://auth0.com/docs/secure/tokens/token-vault) feature helps broker a secure and controlled handshake between the AI agents and the services you want the agent to interact with on your behalf – in the form of scoped access tokens. This way, the agent and LLM do not have access to the credentials and can only call the tools with the permissions you have defined in Auth0. This also means your AI agent only needs to talk to Auth0 for authentication and not the tools directly, making integrations easier.
 
-### 認可フロー
+![Tool calling with Federated API token exchange](https://images.ctfassets.net/23aumh6u8s0i/1gY1jvDgZHSfRloc4qVumu/d44bb7102c1e858e5ac64dea324478fe/tool-calling-with-federated-api-token-exchange.jpg)
 
-1. ユーザーが質問をする
-2. AIがドキュメントコンテキストが必要だと判断
-3. `getContextDocumentsTool`が呼び出される
-4. **FGAが各ドキュメントに対するユーザーの権限をチェック**
-5. 認可されたドキュメントのみが取得・埋め込まれる
-6. 認可されたドキュメントのみを対象にベクトル類似度検索
-7. 関連するコンテキストがAIに提供される
-8. AIは認可された情報のみに基づいて回答を生成
+## Learn more
 
-### FGA認可モデル
-
-FGAモデルは以下のような関係を定義します：
-
-```
-user:alice can view document:project-plan
-user:bob can edit document:budget-2024
-```
-
-これにより、誰が何にアクセスできるかの細かい制御が可能になります。
-
-## 詳細情報
-
+- [Tool Calling in AI Agents: Empowering Intelligent Automation Securely](https://auth0.com/blog/genai-tool-calling-intro/)
+- [Build an AI Assistant with LangGraph, Vercel, and Next.js: Use Gmail as a Tool Securely](https://auth0.com/blog/genai-tool-calling-build-agent-that-calls-gmail-securely-with-langgraph-vercelai-nextjs/)
 - [Call Other's APIs on User's Behalf](https://auth0.com/ai/docs/call-others-apis-on-users-behalf)
-- [Auth0 FGAドキュメント](https://docs.fga.dev/)
-- [Authorization for RAG](https://auth0.com/blog/authorization-for-rag)
 
-## 技術スタック
+## About the template
 
-- エージェントワークフロー構築のための[LangChain.js](https://js.langchain.com/docs/introduction/)と[LangGraph.js](https://langchain-ai.github.io/langgraphjs/)
-- 安全な認証のための[Auth0 AI SDK](https://github.com/auth0-lab/auth0-ai-js)と[Auth0 Next.js SDK](https://github.com/auth0/nextjs-auth0)
-- 細かい認可のための[Auth0 FGA](https://fga.dev/)
-- ベクトル保存と検索のためのPostgreSQL + pgvector
-- Next.js 15 + React 19
-- LLMとしてAmazon Bedrock
+This template scaffolds an Auth0 + LangChain.js + Next.js starter app. It mainly uses the following libraries:
 
-## ライセンス
+- [LangChain's JavaScript framework](https://js.langchain.com/docs/introduction/) and [LangGraph.js](https://langchain-ai.github.io/langgraphjs/) for building agentic workflows.
+- The [Auth0 AI SDK](https://github.com/auth0-lab/auth0-ai-js) and [Auth0 Next.js SDK](https://github.com/auth0/nextjs-auth0) to secure the application and call third-party APIs.
 
-このプロジェクトはMITライセンスの下でオープンソース化されています - 詳細は[LICENSE](LICENSE)ファイルを参照してください。
+It's Vercel's free-tier friendly too! Check out the [bundle size stats below](#-bundle-size).
 
-## 作成者
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/oktadev/auth0-assistant0)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Foktadev%2Fauth0-assistant0)
 
-このプロジェクトは [Deepu K Sasidharan](https://github.com/deepu105) によって構築されました。
+
+## 📦 Bundle size
+
+This package has [@next/bundle-analyzer](https://www.npmjs.com/package/@next/bundle-analyzer) set up by default - you can explore the bundle size interactively by running:
+
+```bash
+$ ANALYZE=true bun run build
+```
+
+## License
+
+This project is open-sourced under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Author
+
+This project is built by [Deepu K Sasidharan](https://github.com/deepu105).
